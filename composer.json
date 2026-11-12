@@ -1,0 +1,19 @@
+{
+    "name": "utaaheu/vite-gourmand",
+    "type": "project",
+    "autoload": {
+        "psr-4": {
+            "App\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "UtaahEU",
+            "email": "esteban.courcelles98@gmail.com"
+        }
+    ],
+    "require": {
+        "vlucas/phpdotenv": "*",
+        "phpmailer/phpmailer": "*"
+    }
+}
