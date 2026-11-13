@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Controllers\HomeController;
+use App\Controllers\MenuController;
 use App\Core\Router;
 
 // Serveur PHP intégré : on laisse passer les fichiers réels (CSS, images, JS)
@@ -23,5 +24,7 @@ session_start([
 
 $router = new Router();
 $router->get('/', [HomeController::class, 'index']);
+$router->get('/menus', [MenuController::class, 'index']);
+$router->get('/api/menus', [MenuController::class, 'api']);
 
 $router->dispatch($_SERVER['REQUEST_URI'], $_SERVER['REQUEST_METHOD']);
