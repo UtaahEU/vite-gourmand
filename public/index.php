@@ -26,5 +26,6 @@ $router = new Router();
 $router->get('/', [HomeController::class, 'index']);
 $router->get('/menus', [MenuController::class, 'index']);
 $router->get('/api/menus', [MenuController::class, 'api']);
+$router->get('/menu', [MenuController::class, 'detail']);
 
 $router->dispatch($_SERVER['REQUEST_URI'], $_SERVER['REQUEST_METHOD']);
