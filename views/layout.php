@@ -1,4 +1,9 @@
-<?php $chemin = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH); ?>
+<?php
+/** @var string $contenu  HTML de la vue, fourni par View::render() */
+/** @var string|null $titre  Titre de la page */
+/** @var array $horaires  Horaires du footer (point 3) */
+$chemin = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+?>
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -53,7 +58,18 @@
         <div class="row g-4">
             <div class="col-md-6">
                 <h2>Nos horaires</h2>
-                <!-- Les horaires viendront de la base au point 3 -->
+                <ul class="list-unstyled mb-0">
+                    <?php foreach ($horaires as $horaire): ?>
+                        <li>
+                            <?= e($horaire['jour']) ?> :
+                            <?php if ($horaire['heure_ouverture'] === null): ?>
+                                Fermé
+                            <?php else: ?>
+                                <?= e(substr($horaire['heure_ouverture'], 0, 5)) ?> - <?= e(substr($horaire['heure_fermeture'], 0, 5)) ?>
+                                <?php endif; ?>
+                        </li>
+                    <?php endforeach; ?>
+                </ul>
             </div>
             <div class="col-md-6 text-md-end">
                 <h2>Vite &amp; Gourmand</h2>

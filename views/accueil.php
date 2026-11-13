@@ -58,7 +58,31 @@
     </div>
 </section>
 
-<!-- Les avis clients viendront de la base au point 3 -->
+<?php if ($avis): ?>
+    <section class="section">
+        <div class="container">
+            <h2 class="text-center mb-4">Ils nous ont fait confiance</h2>
+            <div class="row g-4 justify-content-center">
+                <?php foreach ($avis as $unAvis): ?>
+                    <div class="col-md-4">
+                        <figure class="carte mb-0">
+                            <p class="etoiles">
+                                <span class="visually-hidden">Note : <?= (int) $unAvis['note'] ?> sur 5</span>
+                                <span aria-hidden="true"><?= str_repeat('★', (int) $unAvis['note']) . str_repeat('☆', 5 - (int) $unAvis['note']) ?></span>
+                            </p>
+                            <blockquote>
+                                <p>« <?= e($unAvis['commentaire']) ?> »</p>
+                            </blockquote>
+                            <figcaption class="signature">
+                                — <?= e($unAvis['prenom']) ?> <?= e(mb_substr($unAvis['nom'] ?? '', 0, 1)) ?>
+                            </figcaption>
+                        </figure>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+        </div>
+    </section>
+    <?php endif; ?>
 
 <section class="section">
     <div class="container">

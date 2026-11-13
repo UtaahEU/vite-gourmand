@@ -159,3 +159,24 @@ h3 {
     outline: 3px solid var(--brique);
     outline-offset: 2px;
 }
+
+/* Titres en gras, texte plus grand sur PC */
+h1, h2, h3 { 
+    font-weight: 700;
+}
+@media (min-width: 768px) {
+    body {
+        font-size: 1.125rem;
+    }
+}
+
+/* Avis */
+.etoiles {
+    color: var(--brique);
+    font-size: 1.125rem;
+    letter-spacing: .1rem;
+}
+.signature {
+    color: var(--encre-doux);
+    font-size: .875rem;
+}
