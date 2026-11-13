@@ -242,3 +242,55 @@ h1, h2, h3 {
 .form-control::placeholder {
     color: var(--encre-doux);
 }
+
+/* ---------- Page détail d'un menu ---------- */
+.fil-ariane {
+    font-size: .875rem;
+    margin-bottom: 1.5rem;
+}
+
+.fil-ariane a {
+    color: var(--encre);
+}
+
+.badge-papier {
+    background: var(--papier);
+}
+
+.detail-photo {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 10;
+    object-fit: cover;
+    border-radius: 4px;
+}
+
+.detail-vignette {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+    border-radius: 4px;
+}
+
+.prix-grand {
+    font-family: 'Libre Baskerville', serif;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--brique);
+    margin-bottom: .25rem;
+}
+
+.texte-brique {
+    color: var(--brique);
+}
+
+.encadre-conditions {
+    background: var(--papier);
+    border: 2px solid var(--brique);
+    border-radius: 4px;
+    padding: 1.25rem 1.5rem;
+}
+
+.allergenes {
+    color: var(--encre-doux);
+}

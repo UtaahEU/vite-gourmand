@@ -36,6 +36,41 @@ class MenuController
         echo json_encode(['nombre' => count($menus), 'html' => $html]);
     }
 
+    // Page /menu?id=N : détail complet d'un menu
+    public function detail(): void
+    {
+        // L'id doit être un entier >= 1, sinon false/null
+        $id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT, ['options' => ['min-range' => 1]]);
+        $menu = $id ? Menu::trouver($id) : null;
+
+        if ($menu === null) {
+            http_response_code(404);
+            View::render('erreurs/404', ['titre' => 'Page introuvable']);
+            return;
+        }
+
+        // On ignore les images déclarés en base dont le fichier n'existe pas
+        $dossierPublic = dirname(__DIR__, 2) . '/public/';
+        $images = array_values(array_filter(
+            Menu::images($id),
+            fn(array $image) => is_file($dossierPublic . $image['chemin'])
+        ));
+
+        // On range les plats par type pour afficher une carte par type
+        $composition = ['entree' => [], 'plat' => [], 'dessert' => []];
+        foreach (Menu::plats($id) as $plat) {
+            $composition[$plat['type']][] = $plat;
+        }
+
+        View::render('menus/detail', [
+            'titre' => $menu['titre'],
+            'menu' => $menu,
+            'images' => $images,
+            'composition' => $composition,
+            'connecte' => isset($_SESSION['utilisateur']),
+        ]);
+    }
+
     // Lit les filtres dans l'URL : un nombre positif, sinon null (filtre ignoré)
     private function lireFiltres(): array
     {
