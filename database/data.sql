@@ -45,14 +45,14 @@ INSERT INTO menu (menu_id, titre, description, nombre_personne_minimum, prix_par
  'À commander au moins 10 jours avant la prestation. Matériel de service prêté sur demande.',15,4,1);
 
 INSERT INTO menu_image (menu_id, chemin, texte_alternatif, ordre) VALUES
-(1,'assets/img/menus/noel-tradition-1.jpg','Table de Noël dressée avec foie gras et chapon',1),
+(1,'assets/img/menus/noel-tradition-1.jpg','Volaille rôtie dorée et sa sauce, servie pour Noël',1),
 (1,'assets/img/menus/noel-tradition-2.jpg','Bûche au chocolat praliné',2),
-(2,'assets/img/menus/noel-vegetarien-1.jpg','Risotto aux cèpes servi dans une assiette creuse',1),
-(3,'assets/img/menus/paques-1.jpg','Gigot d''agneau aux herbes tranché',1),
-(4,'assets/img/menus/bordelais-1.jpg','Entrecôte bordelaise et pommes grenaille',1),
+(2,'assets/img/menus/noel-vegetarien-1.jpg','Table de fête avec grenades, fruits secs, sucres d''orge et biscuits de Noël',1),
+(3,'assets/img/menus/paques-1.jpg','Gigot d''agneau tranché et pommes de terre rôties aux herbes',1),
+(4,'assets/img/menus/bordelais-1.jpg','Planche apéritive avec jambon, fromage fondu et frites',1),
 (4,'assets/img/menus/bordelais-2.jpg','Assortiment de canelés bordelais',2),
-(5,'assets/img/menus/buffet-vert-1.jpg','Buffet de légumes colorés et houmous',1),
-(6,'assets/img/menus/cocktail-1.jpg','Plateau de bouchées salées pour cocktail',1);
+(5,'assets/img/menus/buffet-vert-1.jpg','Buffet de crudités colorées : radis, tomates cerises et légumes',1),
+(6,'assets/img/menus/cocktail-1.jpg','Blinis au saumon fumé et crème sur lit de salade',1);
 
 INSERT INTO plat (plat_id, titre_plat, type) VALUES
 (1,'Foie gras maison et chutney de figues','entree'),
