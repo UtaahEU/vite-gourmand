@@ -13,3 +13,45 @@ function prix(float|string $montant): string
     $decimales = floor($montant) == $montant ? 0 : 2;
     return number_format($montant, $decimales, ',', ' ');
 }
+
+// Redirige vers une autre page puis arrête le script
+function rediriger(string $url): never
+{
+    header('Location: ' . $url);
+    exit;
+}
+
+// Jeton CSRF : une valeur secrète par session, cachée dans chaque formulaire POST.
+// Un site pirate ne peut pas la connaître, doncin ne peut pas envoyer le formulaire à la place de l'utilisateur.
+function csrf_jeton(): string
+{
+    if (empty($_SESSION['csrf'])) {
+        $_SESSION['csrf'] = bin2hex(random_bytes(32));
+    }
+    return $_SESSION['csrf'];
+}
+
+function csrf_champ(): string
+{
+    return '<input type="hidden" name="csrf" value="' . csrf_jeton() . '">';
+}
+
+function csrf_valide(): bool
+{
+    return isset($_POST['csrf'], $_SESSION['csrf'])
+        && is_string($_POST['csrf'])
+        && hash_equals($_SESSION['csrf'], $_POST['csrf']);
+}
+
+// Message "flash" : stocké en session, affiché une seule fois sur la page suivante
+function flash(string $type, string $message): void
+{
+    $_SESSION['flash'] = ['type' => $type, 'message' => $message];
+}
+
+function lire_flash(): ?array
+{
+    $flash = $_SESSION['flash'] ?? null;
+    unset($_SESSION['flash']);
+    return $flash;
+}
