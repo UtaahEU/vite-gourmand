@@ -50,7 +50,16 @@ $chemin = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 </header>
 
 <main id="contenu">
-    <?= $contenu ?>
+    <?php $flash = lire_flash(); ?>
+    <?php if ($flash): ?>
+        <div class="container pt-4">
+            <div class="alert <?=  $flash['type'] === 'succes' ? 'alert-succes' : 'alert-danger' ?>"
+                    role="<?= $flash['type'] === 'succes' ? 'status' : 'alert' ?>">
+                <?= e($flash['message']) ?>
+            </div>
+        </div>
+        <?php endif; ?>
+        <?= $contenu ?>
 </main>
 
 <footer class="pied">

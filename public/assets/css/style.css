@@ -294,3 +294,29 @@ h1, h2, h3 {
 .allergenes {
     color: var(--encre-doux);
 }
+
+/* ---------- Pages légales ---------- */
+.texte-legal {
+    max-width: 50rem;
+}
+
+.texte-legal h2 {
+    font-size: 1.4rem;
+    margin-top: 2rem;
+}
+
+/* ---------- Formulaires : erreurs et messages ---------- */
+.form-control.is-invalid {
+    border-color: var(--brique);
+}
+
+.invalid-feedback {
+    color: var(--brique);
+    font-weight: 700;
+}
+
+.alert-succes {
+    background: var(--papier);
+    border: 2px solid #2f5d34;
+    color: #2f5d34;
+}
