@@ -85,4 +85,80 @@ class AuthController
         flash('succes', 'Votre compte est créé ! Un e-mail de bienvenue vous a été envoyé.');
         rediriger('/'); // deviendra /connexion au point 8
     }
+
+    // GET /connexion
+    public function connexion(): void
+    {
+        View::render('auth/connexion', [
+            'titre' => 'Connexion',
+            'erreur' => null,
+            'email' => '',
+            'retour' => $this->retourSur($_GET['retour'] ?? ''),
+        ]);
+    }
+
+    // POST /connexion
+    public function connecter(): void
+    {
+        if (!csrf_valide()) {
+            flash('erreur', 'Votre session a expiré. Merci de vous reconnecter.');
+            rediriger('/connexion');
+        }
+
+        $email = is_string($_POST['email'] ?? null) ? mb_strtolower(trim($_POST['email'])) : '';
+        $motDePasse= is_string($_POST['password'] ?? null) ? $_POST['password'] : '';
+        $retour = $this->retourSur($_POST['retour'] ?? '');
+
+        $compte = Utilisateur::parEmail($email);
+
+        // Même message que l'e-mail ou le mot de passe soit faux :
+        // on ne révèle pas à un pirate quelles adresses ont un compte
+        if ($compte === null || !password_verify($motDePasse, $compte['password'])) {
+            $erreur = 'Email ou mot de passe incorrect.';
+        } elseif (!$compte['actif']) {
+            $erreur = 'Votre compte a été désactivé. Contactez-nous pour plus d\'informations.'; // RG13
+        } else {
+            // Nouvel identifiant de session à la connexion (protection contre la fixation de session)
+            session_regenerate_id(true);
+            $_SESSION['utilisateur'] = [
+                'id' => (int) $compte['utilisateur_id'],
+                'prenom' => $compte['prenom'],
+                'nom' => $compte['nom'],
+                'email' => $compte['email'],
+                'role' => $compte['role']
+            ];
+
+            flash('succes', 'Bonjour ' . $compte['prenom'] . ', vous êtes connecté.');
+            rediriger($retour ?: '/');
+        }
+
+        http_response_code(401);
+        View::render('auth/connexion', [
+            'titre' => 'Connexion',
+            'erreur' => $erreur,
+            'email' => $email,
+            'retour' => $retour
+        ]);
+    }
+
+    // POST /deconnexion (en POST + CSRF : un lien piégé ne peut pas déconnecter quelqu'un)
+    public function deconnecter(): void
+    {
+        if (csrf_valide()) {
+            $_SESSION = [];
+            session_regenerate_id(true);
+            flash('succes', 'Vous êtes déconnecté. À bientôt !');
+        }
+        rediriger('/');
+    }
+
+    // N'accepte qu'une adrezsse interne au site ("/menu?id=1")
+    private function retourSur(mixed $retour): string
+    {
+        if (!is_string($retour) || !str_starts_with($retour, '/') || str_starts_with($retour, '//')
+            || str_contains($retour, '\\')) {
+            return '';
+        }
+        return $retour;
+    }
 }

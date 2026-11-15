@@ -40,9 +40,21 @@ $chemin = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
                     <li class="nav-item">
                         <a class="nav-link" href="/contact" <?= $chemin === '/contact' ? 'aria-current="page"' : '' ?>>Contact</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="btn btn-brique" href="/connexion">Connexion</a>
-                    </li>
+                    <?php if (utilisateur()): ?>
+                        <li class="nav-item">
+                            <span class="nav-link">Bonjour <?= e(utilisateur()['prenom']) ?></span>
+                        </li>
+                        <li class="nav-item">
+                            <form method="post" action="/deconnexion">
+                                <?= csrf_champ() ?>
+                                <button class="btn btn-brique" type="submit">Déconnexion</button>
+                            </form>
+                        </li>
+                    <?php else: ?>
+                        <li class="nav-item">
+                            <a class="btn btn-brique" href="/connexion">Connexion</a>
+                        </li>
+                    <?php endif; ?>
                 </ul>
             </div>
         </div>
