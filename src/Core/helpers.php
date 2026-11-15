@@ -55,3 +55,32 @@ function lire_flash(): ?array
     unset($_SESSION['flash']);
     return $flash;
 }
+
+// Attributs d'un champ de formulaire : classe Bootstrap + attributs RGAA si le champ est en erreur
+// $aide = id d'un texte d'aide lié au champ
+function attributs_champ(array $erreurs, string $champ, string $aide = ''): string
+{
+    $classe = 'form-control';
+    $decritPar = $aide;
+    $attributs = '';
+
+    if (isset($erreurs[$champ])) {
+        $classe .= ' is-invalid';
+        $decritPar = trim($decritPar . ' erreur-' . $champ);
+        $attributs .= ' aria-invalid="true"';
+    }
+    if ($decritPar) {
+        $attributs .= ' aria-describedby="' . $decritPar .'"';
+    }
+
+    return 'class="' . $classe . '"' . $attributs;
+}
+
+// Message d'erreur affiché sous un champ
+function erreur_champ(array $erreurs, string $champ): string
+{
+    if (!isset($erreurs[$champ])) {
+        return '';
+    }
+    return '<div id="erreur-' . $champ . '" class="invalid-feedback">' . e($erreurs[$champ]) . '</div>';
+}

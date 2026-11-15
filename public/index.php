@@ -7,6 +7,7 @@ use App\Controllers\MenuController;
 use App\Core\Router;
 use App\Controllers\PageController;
 use App\Controllers\ContactController;
+use App\Controllers\AuthController;
 
 // Serveur PHP intégré : on laisse passer les fichiers réels (CSS, images, JS)
 if (PHP_SAPI === 'cli-server' && is_file(__DIR__ . parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH))) {
@@ -33,5 +34,7 @@ $router->get('/contact', [ContactController::class, 'formulaire']);
 $router->post('/contact', [ContactController::class, 'envoyer']);
 $router->get('/api/menus', [MenuController::class, 'api']);
 $router->get('/menu', [MenuController::class, 'detail']);
+$router->get('/inscription', [AuthController::class, 'inscription']);
+$router->post('/inscription', [AuthController::class, 'inscrire']);
 
 $router->dispatch($_SERVER['REQUEST_URI'], $_SERVER['REQUEST_METHOD']);
