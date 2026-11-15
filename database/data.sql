@@ -25,10 +25,10 @@ INSERT INTO horaire (horaire_id, jour, heure_ouverture, heure_fermeture) VALUES
 
 -- Comptes de test (José = administrateur, créé directement en base)
 INSERT INTO utilisateur (utilisateur_id, nom, prenom, email, password, telephone, adresse_postale, code_postal, ville, role_id) VALUES
-(1,'Garcia','José','jose@vite-gourmand.fr','HASH_ADMIN','$2y$10$3kLGuZJtPEZHdBZBBpchN.LwLuGQzTqphpQ7I/DK46yxwVALvwK5a','12 rue Sainte-Catherine','33000','Bordeaux',3),
-(2,'Durand','Julie','julie@vite-gourmand.fr','HASH_EMPLOYE','$2y$10$1urkXYgShU4ktu95QRxrGOrzzsRQkWJyHRGOSsllF6.XKpjpJ8dia','12 rue Sainte-Catherine','33000','Bordeaux',2),
-(3,'Martin','Claire','claire.martin@exemple.fr','HASH_UTILISATEUR','$2y$10$GO1a/KBYoFp6UyzzX.xVqObr60NurcAEf4W/PEr7vHIjzLs4au0CO','8 cours de l''Intendance','33000','Bordeaux',1),
-(4,'Benali','Karim','karim.benali@exemple.fr','HASH_UTILISATEUR','$2y$10$GO1a/KBYoFp6UyzzX.xVqObr60NurcAEf4W/PEr7vHIjzLs4au0CO','25 avenue de la Marne','33700','Mérignac',1);
+(1,'Garcia','José','jose@vite-gourmand.fr','$2y$10$3kLGuZJtPEZHdBZBBpchN.LwLuGQzTqphpQ7I/DK46yxwVALvwK5a','0556000001','12 rue Sainte-Catherine','33000','Bordeaux',3),
+(2,'Durand','Julie','julie@vite-gourmand.fr','$2y$10$1urkXYgShU4ktu95QRxrGOrzzsRQkWJyHRGOSsllF6.XKpjpJ8dia','0556000002','12 rue Sainte-Catherine','33000','Bordeaux',2),
+(3,'Martin','Claire','claire.martin@exemple.fr','$2y$10$GO1a/KBYoFp6UyzzX.xVqObr60NurcAEf4W/PEr7vHIjzLs4au0CO','0611223344','8 cours de l''Intendance','33000','Bordeaux',1),
+(4,'Benali','Karim','karim.benali@exemple.fr','$2y$10$GO1a/KBYoFp6UyzzX.xVqObr60NurcAEf4W/PEr7vHIjzLs4au0CO','0622334455','25 avenue de la Marne','33700','Mérignac',1);
 
 INSERT INTO menu (menu_id, titre, description, nombre_personne_minimum, prix_par_personne, conditions_menu, quantite_restante, theme_id, regime_id) VALUES
 (1,'Noël tradition','Un repas de fête généreux autour du foie gras maison et du chapon farci aux marrons.',8,45.00,
