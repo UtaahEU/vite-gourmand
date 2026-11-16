@@ -3,6 +3,7 @@
 /** @var array $client */
 /** @var array $valeurs */
 /** @var array $erreurs */
+/** @var int|null $commandeId */
 $id = (int) $menu['menu_id'];
 $minimum = (int) $menu['nombre_personne_minimum'];
 ?>
@@ -10,15 +11,21 @@ $minimum = (int) $menu['nombre_personne_minimum'];
     <div class="container">
         <nav aria-label="Fil d'Ariane">
             <ol class="breadcrumb fil-ariane" style="--bs-breadcrumb-divider: '>';">
-                <li class="breadcrumb-item"><a href="/menus">Menus</a></li>
-                <li class="breadcrumb-item"><a href="/menu?id=<?= $id ?>"><?= e($menu['titre']) ?></a></li>
-                <li class="breadcrumb-item active" aria-current="page">Commander</li>
+                <?php if ($commandeId): ?>
+                    <li class="breadcrumb-item"><a href="/mon-compte/commandes">Mes commandes</a></li>
+                    <li class="breadcrumb-item"><a href="/mon-compte/commande?id=<?= $commandeId ?>">Ma commande</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Modifier</li>
+                <?php else: ?>
+                    <li class="breadcrumb-item"><a href="/menus">Menus</a></li>
+                    <li class="breadcrumb-item"><a href="/menu?id=<?= $id ?>"><?= e($menu['titre']) ?></a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Commander</li>
+                <?php endif; ?>
             </ol>
         </nav>
 
         <div class="row justify-content-center">
             <div class="col-lg-8">
-                <h1 class="mb-2">Commander : <?= e($menu['titre']) ?></h1>
+                <h1 class="mb-2"><?= $commandeId ? 'Modifier ma commande' : 'Commander' ?> : <?= e($menu['titre']) ?></h1>
                 <p class="mb-4">
                     <?= prix($menu['prix_par_personne']) ?> € / personne · <?= $minimum ?> personnes minimum ·
                     <strong>-10 % dès <?= $minimum + 5 ?> personnes</strong>
@@ -27,6 +34,9 @@ $minimum = (int) $menu['nombre_personne_minimum'];
                 <form class="carte h-auto" method="post" action="/commande" novalidate>
                     <?= csrf_champ() ?>
                     <input type="hidden" name="menu" value="<?= $id ?>">
+                    <?php if ($commandeId): ?>
+                        <input type="hidden" name="commande" value="<?= $commandeId ?>">
+                    <?php endif; ?>
 
                     <h2 class="h3">Vos coordonnées</h2>
                     <p class="mb-4">

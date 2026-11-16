@@ -29,7 +29,7 @@ $p = $commande['prix'];
                             <?php if ($p['reduction'] > 0) : ?>
                                 <tr>
                                     <th scope="row">Réduction de 10 %</th>
-                                    <td class="text-end text-nowrap">- <?= prix($p['reduction']) ?> €</td>
+                                    <td class="text-end text-nowrap">-<?= prix($p['reduction']) ?> €</td>
                                 </tr>
                             <?php endif; ?>
                             <tr>
@@ -46,12 +46,17 @@ $p = $commande['prix'];
                         </tbody>
                     </table>
 
+                    <?php $modification = !empty($commande['commande_id']); ?>
                     <form method="post" action="/commande/confirmer">
                         <?= csrf_champ() ?>
-                        <button class="btn btn-brique w-100" type=submit> Confirmer la commade</button>
+                        <button class="btn btn-brique w-100" type="submit">
+                            <?= $modification ? 'Enregistrer les modifications' : 'Confirmer la commande' ?>
+                        </button>
                     </form>
                     <p class="mt-3 mb-0">
-                        <a class="lien-brique" href="/commande?.menu=<?= (int) $menu['menu_id'] ?>">Modifier</a>
+                        <a class="lien-brique" href="<?= $modification
+                            ? '/mon-compte/commande/modifier?id=' . (int) $commande['commande_id']
+                            : '/commande?menu=' . (int) $menu['menu_id'] ?>">Modifier</a>
                     </p>
                 </div>
             </div>

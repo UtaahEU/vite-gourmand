@@ -6,10 +6,10 @@ use App\Core\Mongo;
 use MongoDB\BSON\UTCDateTime;
 
 // Statistiques des commandes, stockées dans MongoDB (collection "commandes")
+// Si MongoDB ne répond pas, la commande reste valide : on note seulement l'erreur.
 class Statistique
 {
-    // Copie simplifiée de la commande, utilisée par les graphiques de l'administrateur.
-    // Si MongoDB ne répond pas, la commande reste valide : on note seulement l'erreur.
+    // Copie simplifiée de la commande, utilisée par les graphiques de l'administrateur
     public static function enregistrerCommande(string $numero, array $menu, array $commande): void
     {
         try {
@@ -23,11 +23,27 @@ class Statistique
                 'date_commande'   => new UTCDateTime(),
             ]);
         } catch (\Throwable $erreur) {
-            error_log(
-                date('c') . ' MongoDB : ' . $erreur->getMessage() . PHP_EOL,
-                3,
-                dirname(__DIR__, 2) . '/logs/erreurs.log'
-            );
+            self::noterErreur($erreur);
         }
+    }
+
+    // Met à jour la copie MongoDB quand la commande change (statut, prix, personnes)
+    public static function mettreAJour(string $numero, array $champs): void
+    {
+        try {
+            // '$set' entre apostrophes : c'est un opérateur MongoDB, pas une variable PHP
+            Mongo::base()->selectCollection('commandes')->updateOne(['numero' => $numero], ['$set' => $champs]);
+        } catch (\Throwable $erreur) {
+            self::noterErreur($erreur);
+        }
+    }
+
+    private static function noterErreur(\Throwable $erreur): void
+    {
+        error_log(
+            date('c') . ' MongoDB : ' . $erreur->getMessage() . PHP_EOL,
+            3,
+            dirname(__DIR__, 2) . '/logs/erreurs.log'
+        );
     }
 }

@@ -38,7 +38,11 @@ class CommandeController
             rediriger('/menus');
         }
 
-        $menu = $this->menuCommandable(filter_input(INPUT_POST, 'menu', FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]));
+        // Modification d'une commande existante (le menu ne change pas) ou nouvelle commande
+        $commandeId = filter_input(INPUT_POST, 'commande', FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]) ?: null;
+        $menu = $commandeId
+            ? Menu::trouver($this->commandeModifiable($commandeId)['menu_id'])
+            : $this->menuCommandable(filter_input(INPUT_POST, 'menu', FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]));
         $client = Utilisateur::trouver(utilisateur()['id']);
 
         $texte = fn(string $cle): string => is_string($_POST[$cle] ?? null) ? trim($_POST[$cle]) : '';
@@ -86,7 +90,7 @@ class CommandeController
 
         if ($erreurs !== []) {
             http_response_code(422);
-            $this->afficherFormulaire($menu, $client, $valeurs, $erreurs);
+            $this->afficherFormulaire($menu, $client, $valeurs, $erreurs, $commandeId);
             return;
         }
 
@@ -101,6 +105,7 @@ class CommandeController
             'ville' => $lieu['ville'],
             'km' => $lieu['km'],
             'prix' => Commande::calculerPrix($menu, $personnes, $lieu['bordeaux'], $lieu['km']),
+            'commande_id' => $commandeId,
         ];
 
         rediriger('/commande/recapitulatif');
@@ -133,6 +138,10 @@ class CommandeController
             rediriger('/menus');
         }
 
+        if (!empty($commande['commande_id'])) {
+            $this->enregistrerModification($commande);
+        }
+
         $numero = Commande::creer(utilisateur()['id'], $commande);
         unset($_SESSION['commande']);
 
@@ -145,10 +154,74 @@ class CommandeController
         $this->envoyerConfirmation($numero, $menu, $commande);
         Statistique::enregistrerCommande($numero, $menu, $commande);
 
-        flash('succes', 'Merci ! Votre commande n° $numero est enregistrée. Un e-mail de confirmation vous a été envoyé."');
+        flash('succes', "Merci ! Votre commande n° $numero est enregistrée. Un e-mail de confirmation vous a été envoyé.");
         rediriger('/');
     }
 
+    // GET /mon-compte/commandes (US15)
+    public function mesCommandes(): void
+    {
+        exiger_connexion();
+
+        View::render('compte/commandes', [
+            'titre' => 'Mes commandes',
+            'commandes' => Commande::duClient(utilisateur()['id']),
+        ]);
+    }
+
+    // GET /mon-compte/commande?id=N : détail et suivi (US17)
+    public function suivi(): void
+    {
+        exiger_connexion();
+        $id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+        $commande = $id ? Commande::trouverPourClient($id, utilisateur()['id']) : null;
+
+        // Commande inexistante OU d'un autre client : même réponse 404
+        if ($commande === null) {
+            http_response_code(404);
+            View::render('erreurs/404', ['titre' => 'Page introuvable']);
+            return;
+        }
+
+        View::render('compte/commande', [
+            'titre' => 'Commande ' . $commande['numero_commande'],
+            'commande' => $commande,
+            'suivi' => Commande::suivi($id),
+        ]);
+    }
+
+    // GET /mon-compte/commande/modifier?id=N : formulaire prérempli avec la commande (US16)
+    public function modifier(): void
+    {
+        exiger_connexion();
+        $commande = $this->commandeModifiable(filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]));
+
+        $this->afficherFormulaire(Menu::trouver($commande['menu_id']), Utilisateur::trouver(utilisateur()['id']), [
+            'personnes'   => $commande['nombre_personne'],
+            'date'        => $commande['date_prestation'],
+            'heure'       => substr($commande['heure_livraison'], 0, 5),
+            'adresse'     => $commande['adresse_livraison'],
+            'code_postal' => $commande['code_postal_livraison'],
+            'ville'       => $commande['ville_livraison'],
+        ], [], (int) $commande['commande_id']);
+    }
+
+    // POST /mon-compte/commande/annuler (US16)
+    public function annuler(): void
+    {
+        exiger_connexion();
+        if (!csrf_valide()) {
+            flash('erreur', 'Votre session a expiré. Merci de réessayer.');
+            rediriger('/mon-compte/commandes');
+        }
+
+        $commande = $this->commandeModifiable(filter_input(INPUT_POST, 'id', FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]));
+        Commande::annuler((int) $commande['commande_id']);
+        Statistique::mettreAJour($commande['numero_commande'], ['statut' => 'annulee']);
+
+        flash('succes', "La commande n° {$commande['numero_commande']} a été annulée.");
+        rediriger('/mon-compte/commande?id=' . $commande['commande_id']);
+    }
         // US14 : mail récapitulatif envoyé au client
     private function envoyerConfirmation(string $numero, array $menu, array $c): void
     {
@@ -170,6 +243,35 @@ class CommandeController
         Mailer::envoyer($client['email'], "Confirmation de votre commande $numero", $texte);
     }
 
+    // Commande du client connecté, encore en attente (RG6), sinon retour a "Mes commandes"
+    private function commandeModifiable(mixed $id): array
+    {
+        $commande = $id ? Commande::trouverPourClient((int) $id, utilisateur()['id']) : null;
+
+        if ($commande === null || $commande['statut'] !== 'en_attente') {
+            flash('erreur', 'Cette commande ne peut plus être modifiée ni annulée. Contactez-nous si besoin.');
+            rediriger('/mon-compte/commandes');
+        }
+
+        return $commande;
+    }
+
+    // Enregistre une modification validée sur le récapitulatif
+    private function enregistrerModification(array $commande): never
+    {
+        $existante = $this->commandeModifiable($commande['commande_id']);
+        Commande::modifier((int) $existante['commande_id'], $commande);
+        unset($_SESSION['commande']);
+
+        Statistique::mettreAJour($existante['numero_commande'], [
+            'nombre_personne' => $commande['personnes'],
+            'prix_total' => $commande['prix']['total'],
+        ]);
+
+        flash('succes', "Votre commande n° {$existante['numero_commande']} a été modifiée.");
+        rediriger('/mon-compte/commande?id=' . $existante['commande_id']);
+    }
+
     // Menu existant et encore en stock, sinon 404 ou retrour à la fiche du menu
     private function menuCommandable(mixed $id): array
     {
@@ -188,14 +290,15 @@ class CommandeController
         return $menu;
     }
 
-    private function afficherFormulaire(array $menu, array $client, array $valeurs, array $erreurs): void
+    private function afficherFormulaire(array $menu, array $client, array $valeurs, array $erreurs, ?int $commandeId = null): void
     {
         View::render('commandes/formulaire', [
-            'titre' => 'Commander : ' . $menu['titre'],
+            'titre' => ($commandeId ? 'Modifier : ' : 'Commander : ') . $menu['titre'],
             'menu' => $menu,
             'client' => $client,
             'valeurs' => $valeurs,
             'erreurs' => $erreurs,
+            'commandeId' => $commandeId,
         ]);
     }
 }

@@ -107,3 +107,18 @@ function exiger_connexion(array $roles = []): void
         exit('Accès refusé.');
     }
 }
+
+// Libellé lisible d'un statut de commande (RG8)
+function statut_commande(string $statut): string
+{
+    return [
+        'en_attente' => 'En attente de validation',
+        'accepte' => 'Acceptée',
+        'en_preparation' => 'En préparation',
+        'en_livraison' => 'En cours de livraison',
+        'livre' => 'Livrée',
+        'attente_retour_materiel' => 'En attente du retour de matériel',
+        'terminee' => 'Terminée',
+        'annulee' => 'Annulée',
+    ][$statut] ?? $statut;
+}
