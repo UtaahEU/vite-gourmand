@@ -320,3 +320,13 @@ h1, h2, h3 {
     border: 2px solid #2f5d34;
     color: #2f5d34;
 }
+
+/* Suivi de commande : étapes reliées par un trait vertical */
+.suivi {
+    list-style:none;
+    padding-left: 1.25rem;
+    border-left: 2px solid var(--brique);
+}
+.suivi li {
+    margin-bottom: 1rem;
+}

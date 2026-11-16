@@ -15,7 +15,7 @@ $chemin = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
     <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
     <link href="/assets/css/style.css" rel="stylesheet">
 </head>
-<body>
+<body class="d-flex flex-column min-vh-100">
 <a class="lien-evitement" href="#contenu">Aller au contenu</a>
 
 <header class="entete">
@@ -42,6 +42,9 @@ $chemin = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
                     </li>
                     <?php if (utilisateur()): ?>
                         <li class="nav-item">
+                            <a class="nav-link" href="/mon-compte/commandes" <?= str_starts_with($chemin, '/mon-compte') ? 'aria-current="page"' : '' ?>>Mes commandes </a>
+                        </li>
+                        <li class="nav-item">
                             <span class="nav-link">Bonjour <?= e(utilisateur()['prenom']) ?></span>
                         </li>
                         <li class="nav-item">
@@ -61,7 +64,7 @@ $chemin = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
     </nav>
 </header>
 
-<main id="contenu">
+<main id="contenu" class="flex-grow-1">
     <?php $flash = lire_flash(); ?>
     <?php if ($flash): ?>
         <div class="container pt-4">

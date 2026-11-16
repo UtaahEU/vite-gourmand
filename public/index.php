@@ -48,5 +48,9 @@ $router->get('/commande', [CommandeController::class, 'formulaire']);
 $router->post('/commande', [CommandeController::class, 'verifier']);
 $router->get('/commande/recapitulatif', [CommandeController::class, 'recapitulatif']);
 $router->post('/commande/confirmer', [CommandeController::class, 'confirmer']);
+$router->get('/mon-compte/commandes', [CommandeController::class, 'mesCommandes']);
+$router->get('/mon-compte/commande', [CommandeController::class, 'suivi']);
+$router->get('/mon-compte/commande/modifier', [CommandeController::class, 'modifier']);
+$router->post('/mon-compte/commande/annuler', [CommandeController::class, 'annuler']);
 
 $router->dispatch($_SERVER['REQUEST_URI'], $_SERVER['REQUEST_METHOD']);

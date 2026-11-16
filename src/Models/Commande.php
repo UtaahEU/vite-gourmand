@@ -76,4 +76,103 @@ class Commande
             throw $erreur;
         }
     }
+
+    // Commandes d'un client, la plus récente en premier (US15)
+    public static function duClient(int $utilisateurId): array
+    {
+        $requete = Database::get()->prepare(
+            'SELECT c.commande_id, c.numero_commande, c.date_prestation, c.prix_total, c.statut, m.titre
+             FROM commande c
+             JOIN menu m ON m.menu_id = c.menu_id
+             WHERE c.utilisateur_id = :id
+             ORDER BY c.date_prestation DESC'
+        );
+        $requete->execute(['id' => $utilisateurId]);
+
+        return $requete->fetchAll();
+    }
+
+    // Une commande, seulement si elle appartient à ce client (sinon null)
+    public static function trouverPourClient(int $id, int $utilisateurId): ?array
+    {
+        $requete = Database::get()->prepare(
+            'SELECT c.*, m.titre
+             FROM commande c
+             JOIN menu m ON m.menu_id = c.menu_id
+             WHERE c.commande_id = :id AND c.utilisateur_id = :utilisateur'
+        );
+        $requete->execute(['id' => $id, 'utilisateur' => $utilisateurId]);
+
+        return $requete->fetch() ?: null;
+    }
+
+    // Historique horodaté des statuts (RG8, US17)
+    public static function suivi(int $id): array
+    {
+        $requete = Database::get()->prepare(
+            'SELECT statut, date_modification FROM commande_suivi
+             WHERE commande_id = :id
+             ORDER BY date_modification, suivi_id'
+        );
+        $requete->execute(['id' => $id]);
+
+        return $requete->fetchAll();
+    }
+
+    // RG6 : modification par le client (tout sauf le menu), seulement si la commande est encore en attente
+    public static function modifier(int $id, array $c): void
+    {
+        Database::get()->prepare(
+            "UPDATE commande
+             SET date_prestation = :date, heure_livraison = :heure, adresse_livraison = :adresse,
+                 code_postal_livraison = :cp, ville_livraison = :ville, distance_km = :km,
+                 nombre_personne = :personnes, prix_menu = :prix_menu, reduction = :reduction,
+                 prix_livraison = :livraison, prix_total = :total
+             WHERE commande_id = :id AND statut = 'en_attente'"
+        )->execute([
+            'date' => $c['date'],
+            'heure' => $c['heure'],
+            'adresse' => $c['adresse'],
+            'cp' => $c['code_postal'],
+            'ville' => $c['ville'],
+            'km' => $c['km'],
+            'personnes' => $c['personnes'],
+            'prix_menu' => $c['prix']['menu'],
+            'reduction' => $c['prix']['reduction'],
+            'livraison' => $c['prix']['livraison'],
+            'total' => $c['prix']['total'],
+            'id' => $id,
+        ]);
+    }
+
+    // RG6 : annulation par le client. Le menu est remis en stock et le suivi est horodaté.
+    public static function annuler(int $id): void
+    {
+        $pdo = Database::get();
+        $pdo->beginTransaction();
+
+        try {
+            $requete = $pdo->prepare("UPDATE commande SET statut = 'annulee' WHERE commande_id = :id AND statut = 'en_attente'");
+            $requete->execute(['id' => $id]);
+
+            // Aucune ligne modifiée = commande déjà acceptée entre-temps : on ne touche a rien
+            if ($requete->rowCount() === 0) {
+                $pdo->rollBack();
+                return;
+            }
+
+            $pdo->prepare(
+                'UPDATE menu SET quantite_restante = quantite_restante + 1
+                 WHERE menu_id = (SELECT menu_id FROM commande WHERE commande_id = :id)'
+            )->execute (['id' => $id]);
+
+            $pdo->prepare("INSERT INTO commande_suivi (commande_id, statut) VALUES (:id, 'annulee')")
+                ->execute(['id' => $id]);
+
+            $pdo->commit();
+        } catch (\Throwable $erreur) {
+            $pdo->rollBack();
+            throw $erreur;
+        }
+    }
 }
