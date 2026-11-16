@@ -49,4 +49,38 @@ class Utilisateur
 
         return $requete->fetch() ?: null;
     }
+
+    // Enregistre l'empreinte du jeton de réinitialisation, valable 1 heure
+    public static function enregistrerJeton(int $id, string $empreinte): void
+    {
+        $requete = Database::get()->prepare(
+            'UPDATE utilisateur
+            SET reset_token_hash = :empreinte, reset_expiration = DATE_ADD(NOW(), INTERVAL 1 HOUR)
+            WHERE utilisateur_id = :id'
+        );
+        $requete->execute(['empreinte' => $empreinte, 'id' => $id]);
+    }
+
+    // Compte actif dont le jeton correspond et n'a pas expiré, ou null
+    public static function parJeton(string $empreinte): ?array
+    {
+        $requete = Database::get()->prepare(
+            'SELECT utilisateur_id, prenom FROM utilisateur
+            WHERE reset_token_hash = :empreinte AND reset_expiration > NOW() AND actif =1'
+        );
+        $requete->execute(['empreinte' => $empreinte]);
+
+        return $requete->fetch() ?: null;
+    }
+
+    // Nouveau mot de passe + supression du jeton (le lien est unique)
+    public static function changerMotDePasse(int $id, string $hash): void
+    {
+        $requete = Database::get()->prepare(
+            'UPDATE utilisateur
+            SET password = :hash, reset_token_hash = NULL, reset_expiration = NULL
+            WHERE utilisateur_id = :id'
+        );
+        $requete->execute(['hash' => $hash, 'id' => $id]);
+    }
 }

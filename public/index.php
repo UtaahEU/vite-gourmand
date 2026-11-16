@@ -39,5 +39,9 @@ $router->post('/inscription', [AuthController::class, 'inscrire']);
 $router->get('/connexion', [AuthController::class, 'connexion']);
 $router->post('/connexion', [AuthController::class, 'connecter']);
 $router->post('/deconnexion', [AuthController::class, 'deconnecter']);
+$router->get('/mot-de-passe-oublie', [AuthController::class, 'motDePasseOublie']);
+$router->post('/mot-de-passe-oublie', [AuthController::class, 'envoyerLien']);
+$router->get('/reinitialiser', [AuthController::class, 'reinitialisation']);
+$router->post('/reinitialiser', [AuthController::class, 'reinitialiser']);
 
 $router->dispatch($_SERVER['REQUEST_URI'], $_SERVER['REQUEST_METHOD']);
