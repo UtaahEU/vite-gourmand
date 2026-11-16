@@ -4,5 +4,6 @@
 .DS_Store
 Thumbs.db
 *.lo1
-logs/
+logs/*
+!logs/.gitkeep
 desktop.ini
