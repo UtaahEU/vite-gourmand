@@ -19,9 +19,10 @@ class Database
             );
 
             self::$pdo = new PDO($dsn, $_ENV['DB_USER'], $_ENV['DB_PASS'], [
-                PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION, // erreurs SQL = exceptions
-                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,       // résultats en tableaux associatifs
-                PDO::ATTR_EMULATE_PREPARES   => false,                  // vraies requêtes préparées
+                PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,                 // erreurs SQL = exceptions
+                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,                       // résultats en tableaux associatifs
+                PDO::ATTR_EMULATE_PREPARES   => false,                                  // vraies requêtes préparées
+                PDO::MYSQL_ATTR_INIT_COMMAND => "SET sql_mode = 'STRICT_ALL_TABLES'",   // valeur invalide = erreur, jamais de donnée tronquée
             ]);
         }
 
