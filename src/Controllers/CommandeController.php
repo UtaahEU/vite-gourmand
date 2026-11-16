@@ -5,6 +5,7 @@ namespace App\Controllers;
 use App\Core\Adresse;
 use App\Core\Mailer;
 use App\Core\View;
+use App\Models\Avis;
 use App\Models\Commande;
 use App\Models\Menu;
 use App\Models\Statistique;
@@ -187,6 +188,7 @@ class CommandeController
             'titre' => 'Commande ' . $commande['numero_commande'],
             'commande' => $commande,
             'suivi' => Commande::suivi($id),
+            'avis' => Avis::pourCommande($id),
         ]);
     }
 

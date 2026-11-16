@@ -9,6 +9,8 @@ use App\Controllers\PageController;
 use App\Controllers\ContactController;
 use App\Controllers\AuthController;
 use App\Controllers\CommandeController;
+use App\Controllers\AvisController;
+use App\Controllers\ProfilController;
 
 // Serveur PHP intégré : on laisse passer les fichiers réels (CSS, images, JS)
 if (PHP_SAPI === 'cli-server' && is_file(__DIR__ . parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH))) {
@@ -52,5 +54,8 @@ $router->get('/mon-compte/commandes', [CommandeController::class, 'mesCommandes'
 $router->get('/mon-compte/commande', [CommandeController::class, 'suivi']);
 $router->get('/mon-compte/commande/modifier', [CommandeController::class, 'modifier']);
 $router->post('/mon-compte/commande/annuler', [CommandeController::class, 'annuler']);
+$router->post('/mon-compte/avis', [AvisController::class, 'deposer']);
+$router->get('/mon-compte/profil', [ProfilController::class, 'afficher']);
+$router->post('/mon-compte/profil', [ProfilController::class, 'enregistrer']);
 
 $router->dispatch($_SERVER['REQUEST_URI'], $_SERVER['REQUEST_METHOD']);

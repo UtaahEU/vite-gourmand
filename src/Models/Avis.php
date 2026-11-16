@@ -23,4 +23,27 @@ class Avis
 
         return $requete->fetchAll();
     }
+
+        // Avis déjà laissé pour une commande, ou null
+    public static function pourCommande(int $commandeId): ?array
+    {
+        $requete = Database::get()->prepare('SELECT note, commentaire, statut FROM avis WHERE commande_id = :id');
+        $requete->execute(['id' => $commandeId]);
+
+        return $requete->fetch() ?: null;
+    }
+
+    // US18 : nouvel avis, en attente de validation par un employé (RG11)
+    public static function creer(int $utilisateurId, int $commandeId, int $note, string $commentaire): void
+    {
+        Database::get()->prepare(
+            'INSERT INTO avis (note, commentaire, utilisateur_id, commande_id)
+             VALUES (:note, :commentaire, :utilisateur, :commande)'
+        )->execute([
+            'note'        => $note,
+            'commentaire' => $commentaire,
+            'utilisateur' => $utilisateurId,
+            'commande'    => $commandeId,
+        ]);
+    }
 }

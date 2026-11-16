@@ -42,10 +42,12 @@ $chemin = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
                     </li>
                     <?php if (utilisateur()): ?>
                         <li class="nav-item">
-                            <a class="nav-link" href="/mon-compte/commandes" <?= str_starts_with($chemin, '/mon-compte') ? 'aria-current="page"' : '' ?>>Mes commandes </a>
+                            <a class="nav-link" href="/mon-compte/commandes" <?= str_starts_with($chemin, '/mon-compte/commande') ? 'aria-current="page"' : '' ?>>Mes commandes </a>
                         </li>
                         <li class="nav-item">
-                            <span class="nav-link">Bonjour <?= e(utilisateur()['prenom']) ?></span>
+                            <a class="nav-link" href="/mon-compte/profil" <?= $chemin === '/mon-compte/profil' ? 'aria-current="page"' : '' ?>>
+                                Mon profil<span class="visually-hidden"> (<?= e(utilisateur()['prenom']) ?>)</span>
+                            </a>
                         </li>
                         <li class="nav-item">
                             <form method="post" action="/deconnexion">
