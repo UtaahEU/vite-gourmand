@@ -84,3 +84,26 @@ function erreur_champ(array $erreurs, string $champ): string
     }
     return '<div id="erreur-' . $champ . '" class="invalid-feedback">' . e($erreurs[$champ]) . '</div>';
 }
+
+// Utilisateur connecté (tableau stocké en session) ou null
+function utilisateur(): ?array
+{
+    return $_SESSION['utilisateur'] ?? null;
+}
+
+// Bloque une page aux visiteurs non connectés, ou aux rôles non autorisés.
+// Exemple : exiger_connexion(['employe', administrateur']);
+function exiger_connexion(array $roles = []): void
+{
+    $utilisateur = utilisateur();
+
+    if ($utilisateur === null) {
+        flash('erreur', 'Connectez-vous pour accéder à cette page.');
+        rediriger('/connexion?retour=' . urlencode($_SERVER['REQUEST_URI']));
+    }
+
+    if ($roles !== [] && !in_array($utilisateur['role'], $roles, true)) {
+        http_response_code(403);
+        exit('Accès refusé.');
+    }
+}

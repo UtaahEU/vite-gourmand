@@ -36,5 +36,8 @@ $router->get('/api/menus', [MenuController::class, 'api']);
 $router->get('/menu', [MenuController::class, 'detail']);
 $router->get('/inscription', [AuthController::class, 'inscription']);
 $router->post('/inscription', [AuthController::class, 'inscrire']);
+$router->get('/connexion', [AuthController::class, 'connexion']);
+$router->post('/connexion', [AuthController::class, 'connecter']);
+$router->post('/deconnexion', [AuthController::class, 'deconnecter']);
 
 $router->dispatch($_SERVER['REQUEST_URI'], $_SERVER['REQUEST_METHOD']);

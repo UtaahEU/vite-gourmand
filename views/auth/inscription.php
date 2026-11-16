@@ -9,7 +9,7 @@
                 <h1 class="mb-2">Créer un compte</h1>
                 <p class="mb-4">Déjà client ? <a class="lien-brique" href="/connexion">Se connecter</a></p>
 
-                <form class="carte" method="post" action="/inscription" novalidate>
+                <form class="carte h-auto" method="post" action="/inscription" novalidate>
                     <?= csrf_champ() ?>
                     <p class="petit">Tous les champs sont obligatoires.</p>
 

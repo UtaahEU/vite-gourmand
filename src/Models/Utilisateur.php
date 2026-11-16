@@ -35,4 +35,18 @@ class Utilisateur
 
         return (int) Database::get()->lastInsertId();
     }
+
+    // Compte correspondant à un e-mail, avec le libellé de son rôle, ou null
+    public static function parEmail(string $email): ?array
+    {
+        $requete = Database::get()->prepare(
+            'SELECT u.utilisateur_id, u.prenom, u.nom, u.email, u.password, u.actif, r.libelle AS role
+            FROM utilisateur u
+            JOIN role r ON r.role_id = u.role_id
+            WHERE u.email = :email'
+        );
+        $requete->execute(['email' => $email]);
+
+        return $requete->fetch() ?: null;
+    }
 }
