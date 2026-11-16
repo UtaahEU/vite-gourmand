@@ -19,7 +19,8 @@ if (PHP_SAPI === 'cli-server' && is_file(__DIR__ . parse_url($_SERVER['REQUEST_U
 
 require dirname(__DIR__) . '/vendor/autoload.php';
 
-Dotenv\Dotenv::createImmutable(dirname(__DIR__))->load();
+Dotenv\Dotenv::createImmutable(dirname(__DIR__))->safeLoad();
+$_ENV += getenv();
 
 // Session sécurisée : cookie inaccessible au JavaScript, protégé contre le CSRF de base
 session_start([

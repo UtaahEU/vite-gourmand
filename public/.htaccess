@@ -1,0 +1,4 @@
+# Toutes les URL qui ne sont pas un vrai fichier (CSS, images, JS) passent par le routeur index.php
+RewriteEngine On
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^ index.php [QSA,L]
