@@ -83,4 +83,17 @@ class Utilisateur
         );
         $requete->execute(['hash' => $hash, 'id' => $id]);
     }
+
+    // Infos du client pour préremplir la commande,
+    public static function trouver(int $id): ?array
+    {
+        $requete = Database::get()->prepare(
+            'SELECT utilisateur_id, prenom, nom, email, telephone, adresse_postale, code_postal, ville
+            FROM utilisateur
+            WHERE utilisateur_id = :id'
+        );
+        $requete->execute(['id' => $id]);
+
+        return $requete->fetch() ?: null;
+    }
 }

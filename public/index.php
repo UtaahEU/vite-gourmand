@@ -8,6 +8,7 @@ use App\Core\Router;
 use App\Controllers\PageController;
 use App\Controllers\ContactController;
 use App\Controllers\AuthController;
+use App\Controllers\CommandeController;
 
 // Serveur PHP intégré : on laisse passer les fichiers réels (CSS, images, JS)
 if (PHP_SAPI === 'cli-server' && is_file(__DIR__ . parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH))) {
@@ -43,5 +44,9 @@ $router->get('/mot-de-passe-oublie', [AuthController::class, 'motDePasseOublie']
 $router->post('/mot-de-passe-oublie', [AuthController::class, 'envoyerLien']);
 $router->get('/reinitialiser', [AuthController::class, 'reinitialisation']);
 $router->post('/reinitialiser', [AuthController::class, 'reinitialiser']);
+$router->get('/commande', [CommandeController::class, 'formulaire']);
+$router->post('/commande', [CommandeController::class, 'verifier']);
+$router->get('/commande/recapitulatif', [CommandeController::class, 'recapitulatif']);
+$router->post('/commande/confirmer', [CommandeController::class, 'confirmer']);
 
 $router->dispatch($_SERVER['REQUEST_URI'], $_SERVER['REQUEST_METHOD']);

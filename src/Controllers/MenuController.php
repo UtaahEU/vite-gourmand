@@ -40,7 +40,7 @@ class MenuController
     public function detail(): void
     {
         // L'id doit être un entier >= 1, sinon false/null
-        $id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT, ['options' => ['min-range' => 1]]);
+        $id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
         $menu = $id ? Menu::trouver($id) : null;
 
         if ($menu === null) {
