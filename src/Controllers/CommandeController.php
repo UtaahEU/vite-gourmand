@@ -3,9 +3,11 @@
 namespace App\Controllers;
 
 use App\Core\Adresse;
+use App\Core\Mailer;
 use App\Core\View;
 use App\Models\Commande;
 use App\Models\Menu;
+use App\Models\Statistique;
 use App\Models\Utilisateur;
 
 class CommandeController
@@ -139,8 +141,33 @@ class CommandeController
             rediriger('/menu?id=' . $commande['menu_id']);
         }
 
-        flash('succes', "Merci ! Votre commande n° $numero est enregistrée.");
+        $menu = Menu::trouver($commande['menu_id']);
+        $this->envoyerConfirmation($numero, $menu, $commande);
+        Statistique::enregistrerCommande($numero, $menu, $commande);
+
+        flash('succes', 'Merci ! Votre commande n° $numero est enregistrée. Un e-mail de confirmation vous a été envoyé."');
         rediriger('/');
+    }
+
+        // US14 : mail récapitulatif envoyé au client
+    private function envoyerConfirmation(string $numero, array $menu, array $c): void
+    {
+        $client = utilisateur();
+        $p = $c['prix'];
+
+        $texte = "Bonjour {$client['prenom']},\n\n"
+            . "Merci pour votre commande n° $numero !\n\n"
+            . "Menu : {$menu['titre']} pour {$c['personnes']} personnes\n"
+            . 'Livraison le ' . date('d/m/Y', strtotime($c['date'])) . " à {$c['heure']}\n"
+            . "Adresse : {$c['adresse']}, {$c['code_postal']} {$c['ville']}\n\n"
+            . 'Prix du menu : ' . prix($p['menu']) . " €\n"
+            . ($p['reduction'] > 0 ? 'Réduction de 10 % : -' . prix($p['reduction']) . " €\n" : '')
+            . 'Livraison : ' . prix($p['livraison']) . " €\n"
+            . 'Total : ' . prix($p['total']) . " €\n\n"
+            . "Vous pouvez modifier ou annuler votre commande tant qu'elle n'a pas été acceptée par notre équipe.\n\n"
+            . "Julie et José – Vite & Gourmand";
+
+        Mailer::envoyer($client['email'], "Confirmation de votre commande $numero", $texte);
     }
 
     // Menu existant et encore en stock, sinon 404 ou retrour à la fiche du menu

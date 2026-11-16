@@ -76,7 +76,7 @@ $stock = (int) $menu['quantite_restante'];
                 <?php elseif ($connecte): ?>
                     <a class="btn btn-brique w-100" href="/commande?menu=<?= $id ?>">Commander ce menu</a>
                 <?php else: ?>
-                    <a class="btn btn-brique w-100" href="/connexion?retour=<?= urlencode('/menu?id=' . $id) ?>">
+                    <a class="btn btn-brique w-100" href="/connexion?retour=<?= urlencode('/commande?menu=' . $id) ?>">
                         Commander ce menu
                     </a>
                     <p class="petit allergenes mt-2">Connexion requise pour commander</p>
