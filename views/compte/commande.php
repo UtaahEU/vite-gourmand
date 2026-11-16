@@ -1,6 +1,7 @@
 <?php
 /** @var array $commande */
 /** @var array $suivi */
+/** @var array|null $avis */
 $id = (int) $commande['commande_id'];
 $enAttente = $commande['statut'] === 'en_attente';
 ?>
@@ -48,6 +49,48 @@ $enAttente = $commande['statut'] === 'en_attente';
                         </form>
                     </div>
                     <p class="petit mt-2">Modification et annulation possibles tant que notre équipe n'a pas accepté la commande.</p>
+                <?php endif; ?>
+                                <?php if ($commande['statut'] === 'terminee'): ?>
+                    <h2 class="h3 mt-4">Votre avis</h2>
+
+                    <?php if ($avis): ?>
+                        <div class="carte h-auto">
+                            <p class="mb-1">
+                                <span aria-hidden="true"><?= str_repeat('★', (int) $avis['note']) . str_repeat('☆', 5 - (int) $avis['note']) ?></span>
+                                <span class="visually-hidden">Note : <?= (int) $avis['note'] ?> sur 5</span>
+                            </p>
+                            <p><?= nl2br(e($avis['commentaire'])) ?></p>
+                            <p class="petit mb-0">
+                                <?= ['en_attente' => 'En attente de validation par notre équipe', 'valide' => 'Publié sur notre site', 'refuse' => 'Non publié'][$avis['statut']] ?>
+                            </p>
+                        </div>
+                    <?php else: ?>
+                        <form class="carte h-auto" method="post" action="/mon-compte/avis" novalidate>
+                            <?= csrf_champ() ?>
+                            <input type="hidden" name="commande" value="<?= $id ?>">
+
+                            <fieldset class="mb-3">
+                                <legend class="form-label fs-6">Votre note (sur 5)</legend>
+                                <?php for ($n = 1; $n <= 5; $n++): ?>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="radio" name="note" id="note-<?= $n ?>" value="<?= $n ?>" required>
+                                        <label class="form-check-label" for="note-<?= $n ?>"><?= $n ?> <span aria-hidden="true">★</span></label>
+                                    </div>
+                                <?php endfor; ?>
+                            </fieldset>
+
+                            <div class="mb-3">
+                                <label class="form-label" for="commentaire">Votre commentaire</label>
+                                <textarea class="form-control" id="commentaire" name="commentaire" rows="4"
+                                          maxlength="1000" required aria-describedby="aide-commentaire"></textarea>
+                                <p id="aide-commentaire" class="form-text mb-0">
+                                    Entre 10 et 1000 caractères. Votre avis sera publié après validation par notre équipe.
+                                </p>
+                            </div>
+
+                            <button class="btn btn-brique" type="submit">Envoyer mon avis</button>
+                        </form>
+                    <?php endif; ?>
                 <?php endif; ?>
             </div>
 

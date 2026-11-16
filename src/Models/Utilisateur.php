@@ -96,4 +96,15 @@ class Utilisateur
 
         return $requete->fetch() ?: null;
     }
+
+    // US19 : le client modifie ses informations (l'e-mail et le rôle ne changent pas ici)
+    public static function modifierProfil(int $id, array $profil): void
+    {
+        Database::get()->prepare(
+            'UPDATE utilisateur
+             SET prenom = :prenom, nom = :nom, telephone = :telephone,
+                 adresse_postale = :adresse_postale, code_postal = :code_postal, ville = :ville
+             WHERE utilisateur_id = :id'
+        )->execute($profil + ['id' => $id]);
+    }
 }
