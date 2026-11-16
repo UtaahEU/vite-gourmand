@@ -152,7 +152,103 @@ class AuthController
         rediriger('/');
     }
 
-    // N'accepte qu'une adrezsse interne au site ("/menu?id=1")
+    // GET /mot-de-passe-oublie
+    public function motDePasseOublie(): void
+    {
+        View::render('auth/mot-de-passe-oublie', ['titre' => 'Mot de passe oublié', 'erreurs' => []]);
+    }
+
+    // POST /mot-de-passe-oublie
+    public function envoyerLien(): void
+    {
+        if(!csrf_valide()) {
+            flash('erreur', 'Votre session a expiré. Merci de renvoyer le formulaire.');
+            rediriger('/mot-de-passe-oublie');
+        }
+
+        $email = is_string($_POST['email'] ?? null) ? mb_strtolower(trim($_POST['email'])) : '';
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            http_response_code(422);
+            View::render('auth/mot-de-passe-oublie', [
+                'titre' => 'Mot de passe oublié',
+                'erreurs' => ['email' => 'Indiquez une adresse e-mail valide.']
+            ]);
+            return;
+        }
+
+        $compte = Utilisateur::parEmail($email);
+        if ($compte !== null && $compte['actif']) {
+            // Jeton aléatoire envoyé par mail ; en base on ne garde que son empreinte SHA-256
+            $jeton = bin2hex(random_bytes(32));
+            Utilisateur::enregistrerJeton((int) $compte['utilisateur_id'], hash('sha256', $jeton));
+
+            $lien = rtrim($_ENV['APP_URL'], '/') . '/reinitialiser?jeton=' . $jeton;
+            Mailer::envoyer(
+                $email,
+                'Reinitialisation de votre mot de passe',
+                "Bonjour {$compte['prenom']},\n\n"
+                . "Pour choisir un nouveau mot de passe, ouvrez ce lien (valable 1 heure) :\n$lien\n\n"
+                . "Si vous n'êtes pas à l'origine de cette demande, ignorez simplement cet e-mail.\n\n"
+                . "Julie et José - Vite & Gourmand"
+            );
+        }
+
+        // Même message dans tous les cas : on ne révèle pas si l'adresse a un compte
+        flash('succes', 'Si un compte existe avec cette adresse, un e-mail avec un lien de réinitialisation vient de vous être envoyé.');
+        rediriger('/connexion');
+    }
+
+    // GET /reinitialiser?jeton=...
+    public function reinitialisation(): void
+    {
+        $jeton = is_string($_GET['jeton'] ?? null) ? $_GET['jeton'] : '';
+
+        if (Utilisateur::parJeton(hash('sha256', $jeton)) === null) {
+            flash('erreur', 'Ce lien est invalide ou a expiré. Faites une nouvelle demande.');
+            rediriger('/mot-de-passe-oublie');
+        }
+
+        View::render('auth/reinitialiser', ['titre' => 'Nouveau mot de passe', 'jeton' => $jeton, 'erreurs' => []]);
+    }
+
+    // POST /reinitialiser
+    public function reinitialiser(): void
+    {
+        if (!csrf_valide()) {
+            flash('erreur', 'Votre session a expiré. Merci de recommencer.');
+            rediriger('/mot-de-passe-oublie');
+        }
+
+        $jeton = is_string($_POST['jeton'] ?? null) ? $_POST['jeton'] : '';
+        $compte = Utilisateur::parJeton(hash('sha256', $jeton));
+        if ($compte === null) {
+            flash('erreur', 'Ce lien est invalide ou a expiré. Faites une nouvelle demande.');
+            rediriger('/mot-de-passe-oublie');
+        }
+
+        $motDePasse = is_string($_POST['password'] ?? null) ? $_POST['password'] : '';
+        $confirmation = is_string($_POST['confirmation'] ?? null) ? $_POST['confirmation'] : '';
+
+        $erreurs = [];
+        if (!preg_match(self::REGEX_MOT_DE_PASSE, $motDePasse)) {
+            $erreurs['password'] = 'Le mot de passe ne respecte pas les règles indiquées.';
+        } elseif ($motDePasse !== $confirmation) {
+            $erreurs['confirmation'] = 'Les deux mots de passe ne correspondent pas';
+        }
+
+        if ($erreurs !== []) {
+            http_response_code(422);
+            View::render('auth/reinitialiser', ['titre' => 'Nouveau mot de passe', 'jeton' => $jeton, 'erreurs' => $erreurs]);
+            return;
+        }
+
+        Utilisateur::changerMotDePasse((int) $compte['utilisateur_id'], password_hash($motDePasse, PASSWORD_DEFAULT));
+
+        flash('succes', 'Votre mot de passe a été modifié. Vous pouvez vous connecter.');
+        rediriger('/connexion');
+    }
+
+    // N'accepte qu'une adresse interne au site ("/menu?id=1")
     private function retourSur(mixed $retour): string
     {
         if (!is_string($retour) || !str_starts_with($retour, '/') || str_starts_with($retour, '//')
