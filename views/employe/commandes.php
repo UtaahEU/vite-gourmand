@@ -1,5 +1,7 @@
 <?php
 /** @var array $commandes */
+/** @var ?string $statut */
+/** @var ?string $client */
 ?>
 <section class="section pt-4">
     <div class="container">
@@ -11,6 +13,30 @@
         </nav>
 
         <h1 class="mb-4">Commandes</h1>
+
+        <form method="get" action="/employe/commandes" class="carte h-auto mb-4" role="search" aria-label="Filtrer les commandes">
+            <div class="row g-3 align-items-end">
+                <div class="col-md-4">
+                    <label class="form-label" for="statut">Statut</label>
+                    <select class="form-select" id="statut" name="statut">
+                        <option value="">Tous les statuts</option>
+                        <?php foreach (\App\Models\Commande::STATUTS as $s): ?>
+                            <option value="<?= $s ?>" <?= $s === $statut ? 'selected' : '' ?>><?= e(statut_commande($s)) ?></option>
+                            <?php endforeach; ?>
+                    </select>
+                </div>
+                <div class="col-md-5">
+                    <label class="form-label" for="client">Client (nom, prénom ou e-mail)</label>
+                    <input class="form-control" type="search" id="client" name="client" maxlength="100" value="<?= e($client) ?>">
+                </div>
+                <div class="col-md-3 d-flex gap-2">
+                    <button class="btn btn-brique flex-grow-1" type="submit">Filtrer</button>
+                    <a class="btn btn-contour" href="/employe/commandes">Effacer</a>
+                </div>
+            </div>
+        </form>
+
+        <p class="petit" aria-live="polite"><?= count($commandes) ?> commande(s)</p>
 
         <div class="carte h-auto table-responsive">
             <table class="table align-middle mb-0">
@@ -27,6 +53,9 @@
                     </tr>
                 </thead>
                 <tbody>
+                    <?php if ($commandes === []): ?>
+                        <tr><td colspan="7" class="text-center">Aucune commande ne correspond à ces filtres.</td></tr>
+                    <?php endif; ?>
                     <?php foreach ($commandes as $c): ?>
                         <tr>
                             <td class="text-nowrap"><?= e($c['numero_commande']) ?></td>

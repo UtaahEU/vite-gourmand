@@ -17,6 +17,13 @@ class Commande
         'attente_retour_materiel' => ['terminee'],
     ];
 
+    // Tous les status possible (même ordre que l'ENUM de la base), pour le filtre US23
+    public const STATUTS = [
+        'en_attente', 'accepte', 'en_preparation', 'en_livraison', 'livre',
+        'attente_retour_materiel', 'terminee', 'annulee',
+    ];
+
+
     // RG3 : -10 % à partir du minimum + 5 personnes / RG4 : Livraison gratuite à Bordeaux, sinon 5 € + 0,59 €/km
     public static function calculerPrix(array $menu, int $personnes, bool $bordeaux, float $km): array
     {
@@ -188,16 +195,32 @@ class Commande
     }
 
     // US24: toutes les commandes pour l'espace employé, les plus récentes en premier
-    public static function pourEmploye(): array
+    public static function pourEmploye(?string $statut = null, ?string $client = null): array
     {
-        return Database::get()->query(
-            'SELECT c.commande_id, c.numero_commande, c.date_prestation, c.prix_total, c.statut,
-                m.titre, u.nom, u.prenom
-             FROM commande c
-             JOIN menu m ON m.menu_id = c.menu_id
-             JOIN utilisateur u ON u.utilisateur_id = c.utilisateur_id
-             ORDER BY c.date_commande DESC'
-        )->fetchAll();
+        $sql = 'SELECT c.commande_id, c.numero_commande, c.date_prestation, c.prix_total, c.statut,
+                       m.titre, u.prenom, u.nom
+                FROM commande c
+                JOIN menu m ON m.menu_id = c.menu_id
+                JOIN utilisateur u ON u.utilisateur_id = c.utilisateur_id
+                WHERE 1 = 1';
+        $parametres = [];
+        if ($statut !== null) {
+            $sql .= ' AND c.statut = :statut';
+            $parametres['statut'] = $statut;
+        }
+        if ($client !== null) {
+            // Un seul paramètre nommé (EMULATE_PREPARES = false interdit de réutiliser :client).
+            // addcslashes : un % ou un _ tapé par l'employé est cherché tel quel, pas comme joker
+            $sql .= " AND CONCAT(u.prenom, ' ', u.nom, ' ', u.email) LIKE :client";
+            $parametres['client'] = '%' . addcslashes($client, '%_\\') . '%';
+        }
+
+        $sql .= ' ORDER BY c.date_commande DESC';
+
+        $requete = Database::get()->prepare($sql);
+        $requete->execute($parametres);
+
+        return $requete->fetchAll();
     }
 
     // Une commande avec son menu et les coordonnées du client (pour l'employé), ou null
