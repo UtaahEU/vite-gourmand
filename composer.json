@@ -4,7 +4,8 @@
     "autoload": {
         "psr-4": {
             "App\\": "src/"
-        }
+        },
+        "files": ["src/Core/helpers.php"]
     },
     "authors": [
         {
@@ -14,6 +15,9 @@
     ],
     "require": {
         "vlucas/phpdotenv": "*",
-        "phpmailer/phpmailer": "*"
+        "phpmailer/phpmailer": "*",
+        "mongodb/mongodb": "^2.5",
+        "php": "8.2.*",
+        "ext-mongodb": "*"
     }
 }

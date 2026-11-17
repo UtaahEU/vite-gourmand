@@ -3,3 +3,7 @@
 .vscode/
 .DS_Store
 Thumbs.db
+*.lo1
+logs/*
+!logs/.gitkeep
+desktop.ini
