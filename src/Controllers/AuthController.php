@@ -129,7 +129,7 @@ class AuthController
             ];
 
             flash('succes', 'Bonjour ' . $compte['prenom'] . ', vous êtes connecté.');
-            rediriger($retour ?: '/');
+            rediriger($retour ?: (est_employe() ? '/employe' : '/'));
         }
 
         http_response_code(401);

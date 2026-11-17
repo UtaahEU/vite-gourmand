@@ -11,6 +11,8 @@ use App\Controllers\AuthController;
 use App\Controllers\CommandeController;
 use App\Controllers\AvisController;
 use App\Controllers\ProfilController;
+use App\Controllers\EmployeController;
+use App\Controllers\GestionMenuController;
 
 // Serveur PHP intégré : on laisse passer les fichiers réels (CSS, images, JS)
 if (PHP_SAPI === 'cli-server' && is_file(__DIR__ . parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH))) {
@@ -61,5 +63,10 @@ $router->post('/mon-compte/commande/annuler', [CommandeController::class, 'annul
 $router->post('/mon-compte/avis', [AvisController::class, 'deposer']);
 $router->get('/mon-compte/profil', [ProfilController::class, 'afficher']);
 $router->post('/mon-compte/profil', [ProfilController::class, 'enregistrer']);
+$router->get('/employe', [EmployeController::class, 'tableauDeBord']);
+$router->get('/employe/menus', [GestionMenuController::class, 'liste']);
+$router->get('/employe/menu', [GestionMenuController::class, 'formulaire']);
+$router->post('/employe/menu', [GestionMenuController::class, 'enregistrer']);
+$router->post('/employe/menu/supprimer', [GestionMenuController::class, 'supprimer']);
 
 $router->dispatch($_SERVER['REQUEST_URI'], $_SERVER['REQUEST_METHOD']);

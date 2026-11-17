@@ -104,8 +104,18 @@ function exiger_connexion(array $roles = []): void
 
     if ($roles !== [] && !in_array($utilisateur['role'], $roles, true)) {
         http_response_code(403);
-        exit('Accès refusé.');
+        \App\Core\View::render('erreurs/403', ['titre' => 'Accès refusé']);
+        exit;
     }
+}
+
+// L'administrateur a accès à tout ce que fait l'employé (US29)
+const ROLES_EMPLOYE = ['employe', 'administrateur'];
+
+// Vrai si la personne connectée est employé ou administrateur (pour afficher le lien du menu)
+function est_employe(): bool
+{
+    return in_array(utilisateur()['role'] ?? null, ROLES_EMPLOYE, true);
 }
 
 // Libellé lisible d'un statut de commande (RG8)
