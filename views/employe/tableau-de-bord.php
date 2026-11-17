@@ -15,17 +15,32 @@
                 </div>
             </div>
             <div class="col-md-6 col-lg-4">
-            <div class="carte">
-                <h2 class="h3">Plats</h2>
-                <p>Gérer les plats et leurs allergènes, réutilisables dans plusieurs menus.</p>
-                <a class="btn btn-brique" href="/employe/plats">Gérer les plats</a>
+                <div class="carte">
+                    <h2 class="h3">Plats</h2>
+                    <p>Gérer les plats et leurs allergènes, réutilisables dans plusieurs menus.</p>
+                    <a class="btn btn-brique" href="/employe/plats">Gérer les plats</a>
+                </div>
             </div>
-        </div>
-        <div class="col-md-6 col-lg-4">
-            <div class="carte">
-                <h2 class="h3">Commandes</h2>
-                <p>Suivre les commandes et faire avancer leur statut, de l'acceptation à la fin.</p>
-                <a class="btn btn-brique" href="/employe/commandes">Gérer les commandes</a>
+            <div class="col-md-6 col-lg-4">
+                <div class="carte">
+                    <h2 class="h3">Commandes</h2>
+                    <p>Suivre les commandes et faire avancer leur statut, de l'acceptation à la fin.</p>
+                    <a class="btn btn-brique" href="/employe/commandes">Gérer les commandes</a>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="carte">
+                    <h2 class="h3">Avis</h2>
+                    <p>Valider ou refuser les avis des clients avant leur publication sur l'accueil.</p>
+                    <a class="btn btn-brique" href="/employe/avis">Gérer les avis</a>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="carte">
+                    <h2 class="h3">Horaires</h2>
+                    <p>Modifier les horaires d'ouverture affichés en bas de chaque page.</p>
+                    <a class="btn btn-brique" href="/employe/horaires">Gérer les horaires</a>
+                </div>
             </div>
         </div>
     </div>
