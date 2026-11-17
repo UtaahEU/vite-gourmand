@@ -14,6 +14,7 @@ use App\Controllers\ProfilController;
 use App\Controllers\EmployeController;
 use App\Controllers\GestionMenuController;
 use App\Controllers\GestionPlatController;
+use App\Controllers\GestionCommandeController;
 
 // Serveur PHP intégré : on laisse passer les fichiers réels (CSS, images, JS)
 if (PHP_SAPI === 'cli-server' && is_file(__DIR__ . parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH))) {
@@ -73,5 +74,8 @@ $router->get('/employe/plats', [GestionPlatController::class, 'liste']);
 $router->get('/employe/plat', [GestionPlatController::class, 'formulaire']);
 $router->post('/employe/plat', [GestionPlatController::class, 'enregistrer']);
 $router->post('/employe/plat/supprimer', [GestionPlatController::class, 'supprimer']);
+$router->get('/employe/commandes', [GestionCommandeController::class, 'liste']);
+$router->get('/employe/commande', [GestionCommandeController::class, 'detail']);
+$router->post('/employe/commande/statut', [GestionCommandeController::class, 'changerStatut']);
 
 $router->dispatch($_SERVER['REQUEST_URI'], $_SERVER['REQUEST_METHOD']);

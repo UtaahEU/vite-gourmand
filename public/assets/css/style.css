@@ -233,6 +233,12 @@ h1, h2, h3, legend.h3 {
     font-weight: 700;
 }
 
+.btn-contour:hover, .btn-contour:focus {
+    background: var(--encre);
+    color: var(--papier);
+    border-color: var(--encre);
+}
+
 .form-control, .form-select {
     background-color: var(--papier);
     border: 1px solid var(--encre);
