@@ -46,4 +46,32 @@ class Avis
             'commande'    => $commandeId,
         ]);
     }
+
+    
+    // US26 : avis en attente de validation, les plus anciens d'abord (premier arrivé, premier traité)
+    public static function enAttente(): array
+    {
+        return Database::get()->query(
+            "SELECT a.avis_id, a.note, a.commentaire, a.date_creation,
+                    u.prenom, u.nom, c.numero_commande, m.titre
+             FROM avis a
+             JOIN utilisateur u ON u.utilisateur_id = a.utilisateur_id
+             JOIN commande c ON c.commande_id = a.commande_id
+             JOIN menu m ON m.menu_id = c.menu_id
+             WHERE a.statut = 'en_attente'
+             ORDER BY a.date_creation"
+        )->fetchAll();
+    }
+
+    // US26 : valide ou refuse un avis encore en attente.
+    // false si un autre employé l'a déjà traité entre-temps (WHERE statut = 'en_attente').
+    public static function moderer(int $id, string $statut): bool
+    {
+        $requete = Database::get()->prepare(
+            "UPDATE avis SET statut = :statut WHERE avis_id = :id AND statut = 'en_attente'"
+        );
+        $requete->execute(['statut' => $statut, 'id' => $id]);
+
+        return $requete->rowCount() === 1;
+    }
 }
