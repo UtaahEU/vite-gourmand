@@ -10,11 +10,25 @@ use App\Models\Statistique;
 // US24 : suivi des commandes par l'employé (et l'administrateur, US29)
 class GestionCommandeController
 {
-    // GET /employe/commandes
-    public function liste():void
+    // GET /employe/commandes?statut=terminee&client=martin (US23 : filtres facultatifs)
+    public function liste(): void
     {
         exiger_connexion(ROLES_EMPLOYE);
-        View::render('employe/commandes', ['titre' => 'Commandes', 'commandes' => Commande::pourEmploye()]);
+
+        // Statut : accepté seulement s'il fait partie de la liste connue (sinon pas de filtre)
+        $statut = $_GET['statut'] ?? '';
+        $statut = is_string($statut) && in_array($statut, Commande::STATUTS, true) ? $statut : null;
+
+        // Client : texte libre, espace retirés, 100 caractères au plus
+        $client = is_string($_GET['client'] ?? null)  ? trim($_GET['client']) : '';
+        $client = $client !== '' ? mb_substr($client, 0, 100) : null;
+
+        View::render('employe/commandes', [
+            'titre' => 'Commandes',
+            'commandes' => Commande::pourEmploye($statut, $client),
+            'statut' => $statut,
+            'client' => $client,
+        ]);
     }
 
     // GET /employe/commandes?id=3
