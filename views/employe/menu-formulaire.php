@@ -144,7 +144,7 @@ $attributsSelect = fn(string $champ): string => str_replace('form-control', 'for
                         </div>
                     <?php endforeach; ?>
 
-                    <div class="d-flex flex-wrap gap-2 mt-4">
+                    <div class="d-flex flex-wrap align-items-center gap-2 mt-4">
                         <button class="btn btn-brique" type="submit"><?= $id ? 'Enregistrer les modifications' : 'Créer le menu' ?></button>
                         <a class="btn btn-contour" href="/employe/menus">Annuler</a>
                     </div>
