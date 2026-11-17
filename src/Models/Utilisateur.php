@@ -107,4 +107,54 @@ class Utilisateur
              WHERE utilisateur_id = :id'
         )->execute($profil + ['id' => $id]);
     }
+
+    // US27 : crée un compte employé. Le rôle est écrit en dur (2 = employe) :
+    // aucun formulaire ne peut créer un administrateur.
+    public static function creerEmploye(array $donnees): int
+    {
+        $pdo = Database::get();
+        $pdo->prepare(
+            'INSERT INTO utilisateur (nom, prenom, email, password, role_id)
+             VALUES (:nom, :prenom, :email, :password, 2)'
+        )->execute([
+            'nom' => $donnees['nom'],
+            'prenom' => $donnees['prenom'],
+            'email' => $donnees['email'],
+            'password' => $donnees['password'],
+        ]);
+
+        return (int) $pdo->lastInsertId();
+    }
+
+    // US28 : les comptes employés, actifs d'abord
+    public static function employes(): array
+    {
+        return Database::get()->query(
+            'SELECT utilisateur_id, prenom, nom, email, actif, date_creation
+             FROM utilisateur
+             WHERE role_id = 2
+             ORDER BY actif DESC, nom, prenom'
+        )->fetchAll();
+    }
+
+    // US28 : active ou désactive un compte. "AND role_id = 2" : seuls les employés sont concernés,
+    // jamais un client ni l'administrateur. false si le compte n'existe pas ou n'est pas un employé.
+    public static function changerActif(int $id, bool $actif): bool
+    {
+        $requete = Database::get()->prepare(
+            'UPDATE utilisateur SET actif = :actif WHERE utilisateur_id = :id AND role_id = 2'
+        );
+        $requete->execute(['actif' => (int) $actif, 'id' => $id]);
+
+        return $requete->rowCount() === 1;
+    }
+
+    // US28 : le compte existe-t-il encore et est-il actif ? (vérifié à chaque page protégée)
+    public static function estActif(int $id): bool
+    {
+        $requete = Database::get()->prepare('SELECT actif FROM utilisateur WHERE utilisateur_id = :id');
+        $requete->execute(['id' => $id]);
+
+        return (bool) $requete->fetchColumn();
+    }
 }

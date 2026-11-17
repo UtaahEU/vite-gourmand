@@ -101,6 +101,14 @@ function exiger_connexion(array $roles = []): void
         flash('erreur', 'Connectez-vous pour accéder à cette page.');
         rediriger('/connexion?retour=' . urlencode($_SERVER['REQUEST_URI']));
     }
+    
+    // US28 : un compte désactivé pendant qu'il était connecté est déconnecté à la page suivante
+    if (!\App\Models\Utilisateur::estActif((int) $utilisateur['id'])) {
+        unset($_SESSION['utilisateur']);
+        session_regenerate_id(true);
+        flash('erreur', 'Votre compte a été désactivé. Contactez l\'administrateur.');
+        rediriger('/connexion');
+    }
 
     if ($roles !== [] && !in_array($utilisateur['role'], $roles, true)) {
         http_response_code(403);

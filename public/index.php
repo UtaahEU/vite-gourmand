@@ -17,6 +17,7 @@ use App\Controllers\GestionPlatController;
 use App\Controllers\GestionCommandeController;
 use App\Controllers\GestionAvisController;
 use App\Controllers\GestionHoraireController;
+use App\Controllers\AdminController;
 
 // Serveur PHP intégré : on laisse passer les fichiers réels (CSS, images, JS)
 if (PHP_SAPI === 'cli-server' && is_file(__DIR__ . parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH))) {
@@ -84,5 +85,8 @@ $router->get('/employe/avis', [GestionAvisController::class, 'liste']);
 $router->post('/employe/avis', [GestionAvisController::class, 'moderer']);
 $router->get('/employe/horaires', [GestionHoraireController::class, 'formulaire']);
 $router->post('/employe/horaires', [GestionHoraireController::class, 'enregistrer']);
+$router->get('/admin/employes', [AdminController::class, 'employes']);
+$router->post('/admin/employes', [AdminController::class, 'creerEmploye']);
+$router->post('/admin/employe/actif', [AdminController::class, 'changerActif']);
 
 $router->dispatch($_SERVER['REQUEST_URI'], $_SERVER['REQUEST_METHOD']);
