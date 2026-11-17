@@ -21,5 +21,12 @@
                 <a class="btn btn-brique" href="/employe/plats">Gérer les plats</a>
             </div>
         </div>
+        <div class="col-md-6 col-lg-4">
+            <div class="carte">
+                <h2 class="h3">Commandes</h2>
+                <p>Suivre les commandes et faire avancer leur statut, de l'acceptation à la fin.</p>
+                <a class="btn btn-brique" href="/employe/commandes">Gérer les commandes</a>
+            </div>
+        </div>
     </div>
 </section>
