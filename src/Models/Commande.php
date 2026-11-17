@@ -6,6 +6,17 @@ use App\Core\Database;
 
 class Commande
 {
+    // US24: statuts suivants autorisés pour chaque statut (machine à états).
+    // "livre" mène soit au retour de matériel (matériel prêté), soit directement à "terminee"
+    public const ETAPES_SUIVANTES = [
+        'en_attente' => ['accepte'],
+        'accepte' => ['en_preparation'],
+        'en_preparation' => ['en_livraison'],
+        'en_livraison' => ['livre'],
+        'livre' => ['attente_retour_materiel', 'terminee'],
+        'attente_retour_materiel' => ['terminee'],
+    ];
+
     // RG3 : -10 % à partir du minimum + 5 personnes / RG4 : Livraison gratuite à Bordeaux, sinon 5 € + 0,59 €/km
     public static function calculerPrix(array $menu, int $personnes, bool $bordeaux, float $km): array
     {
@@ -170,6 +181,70 @@ class Commande
                 ->execute(['id' => $id]);
 
             $pdo->commit();
+        } catch (\Throwable $erreur) {
+            $pdo->rollBack();
+            throw $erreur;
+        }
+    }
+
+    // US24: toutes les commandes pour l'espace employé, les plus récentes en premier
+    public static function pourEmploye(): array
+    {
+        return Database::get()->query(
+            'SELECT c.commande_id, c.numero_commande, c.date_prestation, c.prix_total, c.statut,
+                m.titre, u.nom, u.prenom
+             FROM commande c
+             JOIN menu m ON m.menu_id = c.menu_id
+             JOIN utilisateur u ON u.utilisateur_id = c.utilisateur_id
+             ORDER BY c.date_commande DESC'
+        )->fetchAll();
+    }
+
+    // Une commande avec son menu et les coordonnées du client (pour l'employé), ou null
+    public static function trouverPourEmploye(int $id): ?array
+    {
+        $requete = Database::get()->prepare(
+            'SELECT c.*, m.titre, u.prenom, u.nom, u.email, u.telephone
+             FROM commande c
+             JOIN menu m ON m.menu_id = c.menu_id
+             JOIN utilisateur u ON u.utilisateur_id = c.utilisateur_id
+             WHERE c.commande_id = :id'
+        );
+        $requete->execute(['id' => $id]);
+
+        return $requete->fetch() ?: null;
+    }
+
+    // US24 : passe la commande de $ancien à $nouveau et horodate le changement (RG8).
+    // WHERE statut = :ancien : si un autre employé a changé le statut entre-temps, rien n'est modifié (false).
+    public static function changerStatut(int $id, string $ancien, string $nouveau): bool
+    {
+        $pdo = Database::get();
+        $pdo->beginTransaction();
+
+        try {
+            $sql = 'UPDATE commande SET statut = :nouveau';
+            if ($nouveau === 'attente_retour_materiel') {
+                $sql .= ', pret_materiel = 1'; // du matériel a été prêté
+            }
+            if ($ancien === 'attente_retour_materiel') {
+                $sql .= ', restitution_materiel = 1'; // du matériel a été rendu
+            }
+            $sql .= ' WHERE commande_id = :id AND statut = :ancien';
+
+            $requete = $pdo->prepare($sql);
+            $requete->execute(['nouveau' => $nouveau, 'id' => $id, 'ancien' => $ancien]);
+
+            if ($requete->rowCount() === 0) {
+                $pdo->rollBack();
+                return false;
+            }
+
+            $pdo->prepare('INSERT INTO commande_suivi (commande_id, statut) VALUES (:id, :statut)')
+                ->execute(['id' => $id, 'statut' => $nouveau]);
+
+            $pdo->commit();
+            return true;
         } catch (\Throwable $erreur) {
             $pdo->rollBack();
             throw $erreur;
