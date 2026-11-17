@@ -15,7 +15,7 @@ body {
     line-height: 1.6;
 }
 
-h1, h2, h3, .marque {
+h1, h2, h3, legend.h3, .marque {
     font-family: 'Libre Baskerville', serif;
     color: var(--encre);
 }
@@ -161,7 +161,7 @@ h3 {
 }
 
 /* Titres en gras, texte plus grand sur PC */
-h1, h2, h3 { 
+h1, h2, h3, legend.h3 { 
     font-weight: 700;
 }
 @media (min-width: 768px) {
