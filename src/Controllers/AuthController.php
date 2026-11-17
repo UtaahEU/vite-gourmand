@@ -9,7 +9,7 @@ use App\Models\Utilisateur;
 class AuthController
 {
     // RG1 : 10 caractères minimum, avec une minuscule, une majuscule, un chiffre et un caractère spécial
-    private const REGEX_MOT_DE_PASSE = '/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z\d]).{10,}$/';
+    public const REGEX_MOT_DE_PASSE = '/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z\d]).{10,}$/';
 
     // GET /inscription
     public function inscription(): void
