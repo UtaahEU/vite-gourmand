@@ -96,4 +96,98 @@ class Menu
 
         return $requete->fetchAll();
     }
+
+    // US20 : tous les menus pour l'espace employé
+    public static function pourGestion(): array
+    {
+        return Database::get()->query(
+            'SELECT m.menu_id, m.titre, m.prix_par_personne, m.nombre_personne_minimum, m.quantite_restante, t.libelle AS theme
+             FROM menu m
+             JOIN theme t ON t.theme_id = m.theme_id
+             ORDER BY m.titre'
+        )->fetchAll();
+    }
+
+    // Ids des plats d'un menu (pour cacher les cases du formulaire)
+    public static function platsIds(int $id): array
+    {
+        $requete = Database::get()->prepare('SELECT plat_id FROM menu_plat WHERE menu_id = :id');
+        $requete->execute(['id' => $id]);
+
+        return array_map('intval', $requete->fetchAll(\PDO::FETCH_COLUMN));
+    }
+
+    // US20 : crée (id null) ou modifie un menu, avec ses images et ses plats.
+    // Transaction : tout est enregistré, ou rien. Renvoie l'id du menu.
+    public static function enregistrer(?int $id, array $m): int
+    {
+        $pdo = Database ::get();
+        $pdo->beginTransaction();
+
+        try {
+            $champs = [
+                'titre' => $m['titre'],
+                'description' => $m['description'],
+                'minimum' => $m['nombre_personne_minimum'],
+                'prix' => $m['prix_par_personne'],
+                'conditions' => $m['conditions_menu'] ?: null,
+                'stock' => $m['quantite_restante'],
+                'theme' => $m['theme_id'],
+                'regime' => $m['regime_id'],
+            ];
+
+            if ($id === null) {
+                $pdo->prepare(
+                    'INSERT INTO menu (titre, description, nombre_personne_minimum, prix_par_personne,
+                            conditions_menu, quantite_restante, theme_id, regime_id)
+                    VALUES (:titre, :description, :minimum, :prix, :conditions, :stock, :theme, :regime)'
+                )->execute($champs);
+                $id = (int) $pdo->lastInsertId();
+            } else {
+                $pdo->prepare(
+                    'UPDATE menu
+                     SET titre = :titre, description = :description, nombre_personne_minimum = :minimum,
+                         prix_par_personne = :prix, conditions_menu = :conditions, quantite_restante = :stock,
+                         theme_id = :theme, regime_id = :regime
+                     WHERE menu_id = :id'
+                )->execute($champs + ['id' => $id]);
+
+                // Les images et les plats sont remplacés par ceux du formulaire
+                $pdo->prepare('DELETE FROM menu_image WHERE menu_id = :id')->execute(['id' => $id]);
+                $pdo->prepare('DELETE FROM menu_plat WHERE menu_id = :id')->execute(['id' => $id]);
+            }
+
+            $image = $pdo->prepare(
+                'INSERT INTO menu_image (menu_id, chemin, texte_alternatif, ordre) VALUES (:menu, :chemin, :alt, :ordre)'
+            );
+            foreach ($m['images'] as $index => $img) {
+                $image->execute(['menu' => $id, 'chemin' => $img['chemin'], 'alt' => $img['alt'], 'ordre' => $index + 1]);
+            }
+
+            $plat = $pdo->prepare('INSERT INTO menu_plat (menu_id, plat_id) VALUES (:menu, :plat)');
+            foreach ($m['plats'] as $platId) {
+                $plat->execute(['menu' => $id, 'plat' => $platId]);
+            }
+
+            $pdo->commit();
+            return $id;
+        } catch (\Throwable $erreur) {
+            $pdo->rollBack();
+            throw $erreur;
+        }
+    }
+
+    // US 20 : supression, refusée si le menu a déjà été commandé (on garde l'historique des clients).
+    // Les images et les liens avec les plats partent avec lui (ON DELETE CASCADE).
+    public static function supprimer(int $id): bool
+    {
+        $requete = Database::get()->prepare('SELECT COUNT(*) FROM commande WHERE menu_id = :id');
+        $requete->execute(['id' => $id]);
+        if ((int) $requete->fetchColumn() > 0) {
+            return false;
+        }
+
+        Database::get()->prepare('DELETE FROM menu WHERE menu_id = :id')->execute(['id' => $id]);
+        return true;
+    }
 }
