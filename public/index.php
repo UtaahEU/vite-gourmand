@@ -77,5 +77,6 @@ $router->post('/employe/plat/supprimer', [GestionPlatController::class, 'supprim
 $router->get('/employe/commandes', [GestionCommandeController::class, 'liste']);
 $router->get('/employe/commande', [GestionCommandeController::class, 'detail']);
 $router->post('/employe/commande/statut', [GestionCommandeController::class, 'changerStatut']);
+$router->post('/employe/commande/modifier', [GestionCommandeController::class, 'modifierOuAnnuler']);
 
 $router->dispatch($_SERVER['REQUEST_URI'], $_SERVER['REQUEST_METHOD']);

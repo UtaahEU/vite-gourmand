@@ -2,6 +2,9 @@
 /** @var array $commande */
 /** @var array $suivi */
 /** @var array $suivants */
+/** @var bool $modifiable */
+/** @var array $erreurs */
+/** @var array $valeurs */
 $id = (int) $commande['commande_id'];
 // Texte des boujtons selon le statut proposé
 $bouton = [
@@ -38,6 +41,10 @@ $bouton = [
                         <?=  e($commande['code_postal_livraison']) ?> <?=  e($commande['ville_livraison']) ?>
                     </p>
                     <p class="mb-0"><strong>Total : <?= prix($commande['prix_total']) ?> €</strong></p>
+                    <?php if ($commande['motif_modification']): ?>
+                        <h3 class="h5 mt-3">Historique des contacts client</h3>
+                        <p class="petit mb-0" style="white-space: pre-line;"><?= e($commande['motif_modification']) ?></p>
+                    <?php endif; ?>
                 </div>
 
                 <div class="carte h-auto mb-4">
@@ -71,6 +78,58 @@ $bouton = [
                     <?php endif; ?>
                 <?php else: ?>
                     <p> Cette commande est <?= e(mb_strtolower(statut_commande($commande['statut']))) ?> : son statut ne peut plus changer.</p>
+                <?php endif; ?>
+                <?php if ($modifiable): ?>
+                    <form method="post" action="/employe/commande/modifier" class="carte h-auto mt-4" novalidate>
+                        <h2 class="h3">Modifier ou annuler</h2>
+                        <p class="petit">Uniquement après avoir contacté le client (RG7). Il recevra un e-mail récapitulatif.</p>
+                        <?= csrf_champ() ?>
+                        <input type="hidden" name="id" value="<?= $id ?>">
+
+                        <fieldset class="mb-3" <?= isset($erreurs['mode_contact']) ? 'aria-describedby="erreur-mode_contact"' : '' ?>>
+                            <legend class="form-label fs-6">Client contacté par <span aria-hidden="true">*</span></legend>
+                            <?php foreach (['gsm' => 'Téléphone', 'mail' => 'E-mail'] as $mode => $libelle): ?>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="mode_contact" id="mode_<?= $mode ?>"
+                                           value="<?= $mode ?>" required <?= $valeurs['mode_contact'] === $mode ? 'checked' : '' ?>>
+                                    <label class="form-check-label" for="mode_<?= $mode ?>"><?= $libelle ?></label>
+                                </div>
+                            <?php endforeach; ?>
+                            <?php if (isset($erreurs['mode_contact'])): ?>
+                                <div id="erreur-mode_contact" class="invalid-feedback d-block"><?= e($erreurs['mode_contact']) ?></div>
+                            <?php endif; ?>
+                        </fieldset>
+
+                        <div class="mb-3">
+                            <label class="form-label" for="motif">Motif <span aria-hidden="true">*</span></label>
+                            <textarea name="motif" id="motif" rows="3" maxlength="500" required <?= attributs_champ($erreurs, 'motif') ?>><?= e($valeurs['motif']) ?></textarea>
+                            <?= erreur_champ($erreurs, 'motif') ?>
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-sm-4">
+                                <label class="form-label" for="personnes">Personnes</label>
+                                <input type="number" name="personnes" id="personnes" min="1" value="<?= e((string) $valeurs['personnes']) ?>" <?= attributs_champ($erreurs, 'personnes') ?>>
+                                <?= erreur_champ($erreurs, 'personnes') ?>
+                            </div>
+                            <div class="col-sm-4">
+                                <label class="form-label" for="date">Date</label>
+                                <input type="date" name="date" id="date" value="<?= e($valeurs['date']) ?>" <?= attributs_champ($erreurs, 'date') ?>>
+                                <?= erreur_champ($erreurs, 'date') ?>
+                            </div>
+                            <div class="col-sm-4">
+                                <label class="form-label" for="heure">Heure</label>
+                                <input type="time" name="heure" id="heure" value="<?= e($valeurs['heure']) ?>" <?= attributs_champ($erreurs, 'heure') ?>>
+                                <?= erreur_champ($erreurs, 'heure') ?>
+                            </div>
+                        </div>
+
+                        <div class="d-flex flex-wrap gap-2">
+                            <button class="btn btn-brique" type="submit" name="action" value="modifier">Enregistrer la modification</button>
+                            <button class="btn btn-contour" type="submit" name="action" value="annuler">Annuler la commande</button>
+                        </div>
+                        <p class="petit mt-2 mb-0">« Annuler » ignore la date, l'heure et le nombre de personnes, et remet le menu en stock.</p>
+                    </form>
                 <?php endif; ?>
             </div>
 
