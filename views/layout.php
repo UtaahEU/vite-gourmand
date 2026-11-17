@@ -41,6 +41,11 @@ $chemin = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
                         <a class="nav-link" href="/contact" <?= $chemin === '/contact' ? 'aria-current="page"' : '' ?>>Contact</a>
                     </li>
                     <?php if (utilisateur()): ?>
+                        <?php if (est_employe()): ?>
+                            <li class="nav_item">
+                                <a class="nav-link" href="/employe" <?= str_starts_with($chemin, '/employe') ? 'aria-current="page"' : '' ?>>Espace employé</a>
+                            </li>
+                        <?php endif; ?>
                         <li class="nav-item">
                             <a class="nav-link" href="/mon-compte/commandes" <?= str_starts_with($chemin, '/mon-compte/commande') ? 'aria-current="page"' : '' ?>>Mes commandes </a>
                         </li>
