@@ -17,6 +17,9 @@ if (PHP_SAPI === 'cli-server' && is_file(__DIR__ . parse_url($_SERVER['REQUEST_U
     return false;
 }
 
+// Heure frnaçaise pour PHP
+date_default_timezone_set('Europe/Paris');
+
 require dirname(__DIR__) . '/vendor/autoload.php';
 
 Dotenv\Dotenv::createImmutable(dirname(__DIR__))->safeLoad();
