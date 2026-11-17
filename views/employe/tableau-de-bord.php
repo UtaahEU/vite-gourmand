@@ -42,6 +42,15 @@
                     <a class="btn btn-brique" href="/employe/horaires">Gérer les horaires</a>
                 </div>
             </div>
+            <?php if (utilisateur()['role'] === 'administrateur'): ?>
+                <div class="col-md-6 col-lg-4">
+                    <div class="carte">
+                        <h2 class="h3">Comptes employés</h2>
+                        <p>Créer un compte employé, ou désactiver celui d'une personne qui part.</p>
+                        <a class="btn btn-brique" href="/admin/employes">Gérer les comptes</a>
+                    </div>
+                </div>
+            <?php endif; ?>
         </div>
     </div>
 </section>
