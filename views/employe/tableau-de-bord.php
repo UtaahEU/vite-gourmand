@@ -35,6 +35,13 @@
                     <a class="btn btn-brique" href="/employe/avis">Gérer les avis</a>
                 </div>
             </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="carte">
+                    <h2 class="h3">Horaires</h2>
+                    <p>Modifier les horaires d'ouverture affichés en bas de chaque page.</p>
+                    <a class="btn btn-brique" href="/employe/horaires">Gérer les horaires</a>
+                </div>
+            </div>
         </div>
     </div>
 </section>
