@@ -5,6 +5,7 @@ namespace App\Controllers;
 use App\Core\Mailer;
 use App\Core\View;
 use App\Models\Utilisateur;
+use App\Models\Statistique;
 
 // Point 17 : l'administrateur gère les comptes employés (US27 créer, US28 désactiver)
 class AdminController
@@ -94,6 +95,17 @@ class AdminController
             flash('erreur', 'Aucun changement : compte introuvable ou déjà dans cet état.');
         }
         rediriger('/admin/employes');
+    }
+
+    // GET /admin/statistiques (US30)
+    public function statistiques(): void
+    {
+        exiger_connexion(self::ROLE_ADMIN);
+
+        View::render('admin/statistiques', [
+            'titre' => 'Statistiques',
+            'parMenu' => Statistique::parMenu(),
+        ]);
     }
 
     private function afficher(array $erreurs, array $valeurs): void

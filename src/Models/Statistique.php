@@ -38,6 +38,35 @@ class Statistique
         }
     }
 
+    // US30 : nombre de commandes par menu (les commandes annulées ne comptent pas)
+    // Calcul fait par MongoDB lui même ("pipeline d'agrégation"). Renvoie null si MongoDB ne répond pas.
+    public static function parMenu(): ?array
+    {
+        try {
+            $resultats = Mongo::base()->selectCollection('commandes')->aggregate([
+                ['$match' => ['statut' => ['$ne' => 'annulee']]],
+                ['$group' => [
+                    '_id' => '$menu_id',
+                    'menu' => ['$last' => '$menu_titre'],
+                    'commandes' => ['$sum' => 1],
+                ]],
+                ['$sort' => ['commandes' => -1]],
+            ]);
+
+            $lignes = [];
+            foreach ($resultats as $resultat) {
+                $lignes[] = [
+                    'menu' => (string) $resultat['menu'],
+                    'commandes' => (int) $resultat['commandes'],
+                ];
+            }
+            return $lignes;
+        } catch (\Throwable $erreur) {
+            self::noterErreur($erreur);
+            return null;
+        }
+    }
+
     private static function noterErreur(\Throwable $erreur): void
     {
         error_log(

@@ -88,5 +88,6 @@ $router->post('/employe/horaires', [GestionHoraireController::class, 'enregistre
 $router->get('/admin/employes', [AdminController::class, 'employes']);
 $router->post('/admin/employes', [AdminController::class, 'creerEmploye']);
 $router->post('/admin/employe/actif', [AdminController::class, 'changerActif']);
+$router->get('/admin/statistiques', [AdminController::class, 'statistiques']);
 
 $router->dispatch($_SERVER['REQUEST_URI'], $_SERVER['REQUEST_METHOD']);
