@@ -38,26 +38,41 @@ class Statistique
         }
     }
 
-    // US30 : nombre de commandes par menu (les commandes annulées ne comptent pas)
+    // US30 + US31 : nombre de commandes par menu et chiffre d'affaires par menu (commande annulées exclues)
+    // Filtres facultatifs : menu (id), du / au (dates AAAA-MM-JJ, heure de Paris)
     // Calcul fait par MongoDB lui même ("pipeline d'agrégation"). Renvoie null si MongoDB ne répond pas.
-    public static function parMenu(): ?array
+    public static function parMenu(array $filtres = []): ?array
     {
         try {
+            $condition = ['statut' => ['$ne' => 'annulee']];
+            if (!empty($filtres['menu'])) {
+                $condition['menu_id'] = (int) $filtres['menu'];
+            }
+            if (!empty($filtres['du'])) {
+                $condition['date_commande']['$gte'] = self::dateMongo($filtres['du']);
+            }
+            if (!empty($filtres['au'])) {
+                // Jour de fin inclus : on prend tout ce qui est avant minuit le lendemain
+                $condition['date_commande']['$lt'] = self::dateMongo($filtres['au'], '+1 day');
+            }
+
             $resultats = Mongo::base()->selectCollection('commandes')->aggregate([
-                ['$match' => ['statut' => ['$ne' => 'annulee']]],
+                ['$match' => $condition],
                 ['$group' => [
                     '_id' => '$menu_id',
-                    'menu' => ['$last' => '$menu_titre'],
-                    'commandes' => ['$sum' => 1],
+                    'menu_titre' => ['$last' => '$menu_titre'],
+                    'nombre_commandes' => ['$sum' => 1],
+                    'chiffre_affaires' => ['$sum' => '$prix_total'],
                 ]],
-                ['$sort' => ['commandes' => -1]],
+                ['$sort' => ['nombre_commandes' => -1]],
             ]);
 
             $lignes = [];
             foreach ($resultats as $resultat) {
                 $lignes[] = [
-                    'menu' => (string) $resultat['menu'],
-                    'commandes' => (int) $resultat['commandes'],
+                    'menu' => (string) $resultat['menu_titre'],
+                    'commandes' => (int) $resultat['nombre_commandes'],
+                    'chiffre_affaires' => round((float) $resultat['chiffre_affaires'], 2),
                 ];
             }
             return $lignes;
@@ -65,6 +80,13 @@ class Statistique
             self::noterErreur($erreur);
             return null;
         }
+    }
+
+    // "2026-11-18" (heure de Paris) -> date MongoDB (stockée en UTC, en millisecondes)
+    private static function dateMongo(string $jour, string $decalage = '+0 day'): UTCDateTime
+    {
+        $date = (new \DateTimeImmutable($jour))->modify($decalage);
+        return new UTCDateTime($date->getTimestamp() * 1000);
     }
 
     private static function noterErreur(\Throwable $erreur): void

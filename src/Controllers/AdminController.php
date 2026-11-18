@@ -6,6 +6,7 @@ use App\Core\Mailer;
 use App\Core\View;
 use App\Models\Utilisateur;
 use App\Models\Statistique;
+use App\Models\Menu;
 
 // Point 17 : l'administrateur gère les comptes employés (US27 créer, US28 désactiver)
 class AdminController
@@ -97,14 +98,32 @@ class AdminController
         rediriger('/admin/employes');
     }
 
-    // GET /admin/statistiques (US30)
+    // GET /admin/statistiques (US30 graphique, US31 chiffre d'affaires + filtres)
     public function statistiques(): void
     {
         exiger_connexion(self::ROLE_ADMIN);
 
+        // Filtres lus dans l'URL (GET) : une valeur au mauvais format est simplement ignorée
+        $jour = function (string $cle): ?string {
+            $valeur = $_GET[$cle] ?? '';
+            $date = is_string($valeur) ? \DateTimeImmutable::createFromFormat('Y-m-d', $valeur) : false;
+            return ($date && $date->format('Y-m-d') === $valeur) ? $valeur : null;
+        };
+        $filtres = [
+            'menu' => filter_input(INPUT_GET, 'menu', FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]) ?: null,
+            'du' => $jour('du'),
+            'au' => $jour('au'),
+        ];
+        // Période saisie à l'envers : on remet les dates dans l'ordre
+        if ($filtres['du'] && $filtres['au'] && $filtres['du'] > $filtres['au']) {
+            [$filtres['du'], $filtres['au']] = [$filtres['au'], $filtres['du']];
+        }
+
         View::render('admin/statistiques', [
             'titre' => 'Statistiques',
-            'parMenu' => Statistique::parMenu(),
+            'parMenu' => Statistique::parMenu($filtres),
+            'filtres' => $filtres,
+            'menus' => Menu::pourGestion(),
         ]);
     }
 
