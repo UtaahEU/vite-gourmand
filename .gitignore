@@ -7,3 +7,5 @@ Thumbs.db
 logs/*
 !logs/.gitkeep
 desktop.ini
+# Documents du rendu (contiennent les identifiants de test)
+rendu/

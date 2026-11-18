@@ -9,7 +9,8 @@ document.addEventListener('DOMContentLoaded', () => {
             datasets: [{
                 label: 'Commandes',
                 data: donnees.map((ligne) => ligne.commandes),
-                backgroundColor: '#7a2e12', // brique de la charte
+                backgroundColor: '#7a2e12', // brique 
+                maxBarThickness: 80, // barre pas trop large quand il y a peu de menus
             }],
         },
         options: {
