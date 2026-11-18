@@ -16,7 +16,11 @@
         </p>
 
         <h2>Hébergement</h2>
-        <p>[Nom de l'hébergeur, adresse et site web : à compléter après le déploiement]</p>
+        <p>
+            Heroku (Salesforce, Inc.)<br>
+            415 Mission Street, Suite 300, San Francisco, CA 94105, États-Unis<br>
+            Site : https://www.heroku.com/
+        </p>
         
         <h2>Données personnelles</h2>
         <p>
@@ -46,7 +50,7 @@
 
         <h2>Crédits photos</h2>
         <ul>
-            <li>Photos des menus : Unsplash - [Prénom Nom du photographe], [Prénom Nom], ...</li>
+            <li>Photos des menus : <a class="lien-brique" href="https://unsplash.com">Unsplash</a> (licence Unsplash, utilisation libre).</li>
             <li>Logo et charte graphique : réalisés pour le projet.</li>
         </ul>
     </div>

@@ -84,8 +84,7 @@ Puis ouvrir http://localhost:3000 dans le navigateur.
 | Client (Claire) | claire.martin@exemple.fr |
 | Client (Karim) | karim.benali@exemple.fr |
 
-Les mots de passe sont dans le **manuel d'utilisation** remis avec ma copie. Je ne les mets pas ici car le dépôt GitHub est public.
-
+Les mots de passe sont dans le **manuel d'utilisation** : `docs/manuel-utilisation.pdf`.
 Le compte administrateur est créé directement dans la base : on ne peut pas créer d'administrateur depuis le site.
 
 ---

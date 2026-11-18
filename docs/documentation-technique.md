@@ -47,18 +47,30 @@ Les mots de passe (base de données, MongoDB, boîte mail) sont dans un fichier 
 
 ---
 
-## 3. La base de données
+## 3. La conception
 
-Les schémas sont dans `docs/conception/` :
-- `mcd.png` : le schéma de la base (MCD)
-- `diagramme-classes.png` : le diagramme de classes
-- `cas-utilisation.png` : qui peut faire quoi sur le site
-- `sequence.png` : les étapes d'une commande
+### Le modèle conceptuel de données (MCD)
+Le schéma de la base de données, fait avec Looping :
 
-La base a **14 tables**. J'ai ajouté quelques tables au modèle de l'énoncé :
+![MCD](conception/mcd.png)
+
+La base a **14 tables** (`database/schema.sql`). J'ai ajouté quelques tables au modèle de l'énoncé :
 - `menu_image` : pour mettre plusieurs photos par menu ;
 - `commande_suivi` : pour garder l'historique des statuts d'une commande, avec la date ;
 - les 14 allergènes officiels sont déjà rentrés dans la base.
+
+### Le diagramme de classes
+![Diagramme de classes](conception/diagramme-classes.png)
+
+### Le diagramme de cas d'utilisation
+Il montre qui peut faire quoi sur le site (visiteur, client, employé, administrateur) :
+
+![Diagramme de cas d'utilisation](conception/cas-utilisation.png)
+
+### Le diagramme de séquence « Commander un menu »
+Il montre, étape par étape, ce qui se passe entre le client, le site, la base de données, MongoDB et l'envoi de l'e-mail quand on commande :
+
+![Diagramme de séquence](conception/sequence.png)
 
 ---
 
