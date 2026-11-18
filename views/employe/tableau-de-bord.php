@@ -50,6 +50,13 @@
                         <a class="btn btn-brique" href="/admin/employes">Gérer les comptes</a>
                     </div>
                 </div>
+                <div class="col-md-6 col-lg-4">
+                    <div class="carte">
+                        <h2 class="h3">Statistiques</h2>
+                        <p>Nombre de commandes par menu, d'après la base MongoDB.</p>
+                        <a class="btn btn-brique" href="/admin/statistiques">Voir les statistiques</a>
+                    </div>
+                </div>
             <?php endif; ?>
         </div>
     </div>
