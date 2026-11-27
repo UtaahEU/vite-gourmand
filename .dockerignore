@@ -1,0 +1,10 @@
+.env
+README.md
+Procfile
+.git
+docs/
+rendu/
+vendor/
+Dockerfile
+docker-compose.yml
+.dockerignore
